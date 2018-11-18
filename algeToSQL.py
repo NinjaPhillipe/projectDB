@@ -1,4 +1,4 @@
 import ast
+from operation import *
 
-node = ast.UnaryOp()
-node.op = ast.Num()
+test = Join('d')
