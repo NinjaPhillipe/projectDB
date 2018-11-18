@@ -1,4 +1,10 @@
 import ast
 from operation import *
 
-test = Join('d')
+eq = Eq('Country', Cst('Mali'))
+rel = Rel('CC')
+test = Select(eq,rel)
+
+print(str(eq))
+print(rel)
+print(test)
