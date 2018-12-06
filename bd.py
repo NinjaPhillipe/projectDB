@@ -1,22 +1,29 @@
 import sqlite3
-db = sqlite3.connect('my_db.db')
+from operation import *
 
-cursor = db.cursor()
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS users(
-     id INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
-     name TEXT,
-     age INTERGER
-)
-""")
-db.commit()
-cursor.execute("""INSERT INTO users(name, age) VALUES(?, ?)""", ("test2", 10))
-#db.commit()
-cursor.execute("""SELECT id,name,age FROM users""")
-user1 = cursor.fetchone()
-while (user1 != None):
-    print(user1)
-    user1 = cursor.fetchone()
-print(user1)
+#############################get col name#################
+db = sqlite3.connect("my_db.db")
+db.row_factory = sqlite3.Row
+cursor = db.execute('select * from users')
+# instead of cursor.description:
+row = cursor.fetchone()
+names = row.keys()
+print(names)
+##########################################################
 
-db.close()
+# ("users",['id','name','age'],['INTEGER','TEXT','INTEGER'])
+
+# dbschema = DBSchema()
+# dbschema.add_table("Countries",["Name","Capital","Population"],["TEXT","TEXT","INTERGER"])
+
+# db.connect("PATH")
+# dbschema = DBSchema(db)
+
+tab = Table("users",['id','name','age'],['INTEGER','TEXT','INTEGER'])
+
+exp = Select(Eq("Population",Cst(100)),Rel("Countries"))
+# exp=Select("tt",Rel("Countries"))
+
+print(exp.valid)
+if(exp.valid == True):
+    print(exp.execute(db))
