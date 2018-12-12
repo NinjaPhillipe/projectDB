@@ -8,10 +8,10 @@ class DbSchema:
         self.tables = []
         self.dbname = dbname
         self.db = sqlite3.connect(self.dbname)
-    def getDbschema(self):
         for table in self.getTables():
             self.getColInfo(table)
-
+    def getDbschema(self):
+        return self.tab
     def getTables(self):
         cursor = self.db.cursor()
         tablesName = []
@@ -54,7 +54,11 @@ class Rel:
         # super(, self).__init__()
         self.table = table
     def execute(self,dbSchema):
-        return "{}".format(self.table)
+        for table in dbSchema.getDbschema():
+            if(table[0]==self.table):
+                return "{}".format(self.table)
+        return "ERROR"
+
 class Eq:
     """Objet representant une egalité"""
     type = "eq"

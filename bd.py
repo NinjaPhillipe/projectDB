@@ -5,6 +5,12 @@ db = sqlite3.connect("my_db.db")
 
 dbSchema = DbSchema("my_db.db")
 
-dbSchema.getDbschema()
+print(dbSchema.getDbschema())
 
-print(dbSchema)
+##############ERROR#########
+req = Rel('CC')
+print(req.execute(dbSchema))
+
+###############WORK###########
+req = Rel('users')
+print(req.execute(dbSchema))
