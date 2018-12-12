@@ -9,7 +9,7 @@ class DbSchema:
         self.db = sqlite3.connect(self.dbname)
     def getDbschema(self):
         for table in self.getTables():
-            print(self.getColInfo(table))
+            self.getColInfo(table)
 
     def getTables(self):
         cursor = self.db.cursor()
