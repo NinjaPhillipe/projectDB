@@ -4,6 +4,7 @@ class DbSchema:
     """docstring for DbSchema."""
     def __init__(self, dbname):
         # super(DbSchema, self).__init__()
+        self.tab = []
         self.tables = []
         self.dbname = dbname
         self.db = sqlite3.connect(self.dbname)
@@ -21,14 +22,16 @@ class DbSchema:
         return tablesName
 
     def getColInfo(self,table):
-        print("__________",table,"____________")
         colName = []
         colType = []
         cursor = self.db.cursor()
         for col in cursor.execute("PRAGMA table_info('annuaire')").fetchall():
             colName.append(col[1])
             colType.append(col[2])
-        print(table,colName,colType)
+        self.tab.append([table,colName,colType])
+    def __str__(self):
+        #format [table, colonoe, type]
+        return str(self.tab)
 
 
 class Table:
