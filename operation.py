@@ -33,16 +33,6 @@ class DbSchema:
         #format [table, colonoe, type]
         return str(self.tab)
 
-
-class Table:
-    """docstring for table."""
-    def __init__(self, tableName,colName,colType):
-        # super(table, self).__init__()
-        self.name = tableName
-        self.colName = colName
-        self.colType = colType
-
-
 class Cst:
     """Objet representant une constante"""
     valid = True
