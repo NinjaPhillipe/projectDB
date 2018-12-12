@@ -36,10 +36,14 @@ class DbSchema:
 class Cst:
     """Objet representant une constante"""
     valid = True
-    type = ""
     def __init__(self, name):
         # super(, self).__init__()
         self.name = str(name)
+        self.type = ""
+        if (self.name.isdigit()):
+            self.type='INTEGER'
+        else:
+            self.type="TEXT"
     def execute(self, dbSchema):
         if (self.name.isdigit()):
             return "{}".format(self.name)
@@ -54,6 +58,7 @@ class Rel:
         # super(, self).__init__()
         self.table = table
     def execute(self,dbSchema):
+        #vérifie si la table existe
         for table in dbSchema.getDbschema():
             if(table[0]==self.table):
                 return "{}".format(self.table)
@@ -72,19 +77,31 @@ class Eq:
 class Select:
     """docstring for ."""
     type = "request"
-    valid = True
-    request = "ERROR"
     def __init__(self, eq,rel):
         # super(, self).__init__()
         self.eq = eq
         self.rel = rel
     def execute(self, dbSchema):
-        if(self.rel.type == "rel" and self.eq.type == "eq"):
-            self.request = "SELECT * FROM {1} WHERE {0}".format(self.eq.execute(dbSchema),self.rel.execute(dbSchema))
-        else:
-            self.request = "Error invalid argument type"
-            self.valid = False
-        return self.request
+        for table in dbSchema.getDbschema():
+            if(table[0]==self.rel.table):
+                for col in table[1]:
+                    index = table[1].index(col)
+                    if(self.eq.col == col):
+                        print(table[2][index])
+                        print(self.eq.constante.type)
+                        if(self.eq.constante.type==table[2][index]):
+                            return "WORK" ##############return test
+
+
+        return "ERROR"
+
+
+        # if(self.rel.type == "rel" and self.eq.type == "eq"):
+        #     self.request = "SELECT * FROM {1} WHERE {0}".format(self.eq.execute(dbSchema),self.rel.execute(dbSchema))
+        # else:
+        #     self.request = "Error invalid argument type"
+        #     self.valid = False
+        # return self.request
 
 class Proj:
     """docstring for ."""
