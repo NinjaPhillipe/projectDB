@@ -43,9 +43,11 @@ class Cst:
         if (isinstance(self.name, int)):
             self.type='INTEGER'
         else if (isinstance(self.name, float)):
-                self.type='REAL'
-            else:
-                self.type="TEXT"
+            self.type='REAL'
+        else if (isinstance(self.name, string)):
+            self.type="TEXT"
+        else :
+            return "ERROR"
     def execute(self, dbSchema):
         if (self.name.isdigit()):
             return "{}".format(self.name)
