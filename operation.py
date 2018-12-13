@@ -85,11 +85,9 @@ class Select:
         for table in dbSchema.getDbschema():
             if(table[0]==self.rel.table):
                 for col in table[1]:
-                    index = table[1].index(col)
                     if(self.eq.col == col):
-                        print(table[2][index])
-                        print(self.eq.constante.type)
-                        if(self.eq.constante.type==table[2][index]):
+                        index = table[1].index(col) #on récupere l'indice de la col
+                        if(self.eq.constante.type==table[2][index]): #type consatnte == type de la colonne
                             return "WORK" ##############return test
 
 
@@ -112,17 +110,19 @@ class Proj:
         self.arrayCol = arrayCol
         self.fff = fff
     def execute(self,dbSchema):
-        tmp = ""
-        for t in self.arrayCol:
-            if( tmp != ""):
-                tmp+=","
-            tmp+=t
-        if (self.fff.type == "request"):
-            return "SELECT {} FROM ({})".format(str(tmp),self.fff.execute(dbSchema))
-        elif(self.fff.type == "rel"):
-            return "SELECT {} FROM {}".format(str(tmp),self.fff.execute(dbSchema))
-        else:
-            return """ERROR {1} is not a valid argument \n ----> SELECT {0} FROM {1}""".format(str(tmp), self.fff.execute(dbSchema))
+        for col in arrayCol:
+            print("NOT MPLEMENTED")
+        # tmp = ""
+        # for t in self.arrayCol:
+        #     if( tmp != ""):
+        #         tmp+=","
+        #     tmp+=t
+        # if (self.fff.type == "request"):
+        #     return "SELECT {} FROM ({})".format(str(tmp),self.fff.execute(dbSchema))
+        # elif(self.fff.type == "rel"):
+        #     return "SELECT {} FROM {}".format(str(tmp),self.fff.execute(dbSchema))
+        # else:
+        #     return """ERROR {1} is not a valid argument \n ----> SELECT {0} FROM {1}""".format(str(tmp), self.fff.execute(dbSchema))
 class Join:
     """docstring for ."""
     type = "join"
