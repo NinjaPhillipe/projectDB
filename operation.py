@@ -25,7 +25,7 @@ class DbSchema:
         colName = []
         colType = []
         cursor = self.db.cursor()
-        for col in cursor.execute("PRAGMA table_info('annuaire')").fetchall():
+        for col in cursor.execute("PRAGMA table_info({})".format(table)).fetchall():
             colName.append(col[1])
             colType.append(col[2])
         self.tab.append([table,colName,colType])
