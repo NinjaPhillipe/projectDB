@@ -40,10 +40,14 @@ class Cst:
         # super(, self).__init__()
         self.name = str(name)
         self.type = ""
-        if (self.name.isdigit()):
+        if (isinstance(self.name, int)):
             self.type='INTEGER'
-        else:
+        else if (isinstance(self.name, float)):
+            self.type='REAL'
+        else if (isinstance(self.name, string)):
             self.type="TEXT"
+        else :
+            return "ERROR"
     def execute(self, dbSchema):
         if (self.name.isdigit()):
             return "{}".format(self.name)
