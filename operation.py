@@ -44,7 +44,7 @@ class Cst:
             self.type='INTEGER'
         elif (isinstance(self.name, float)):
             self.type='REAL'
-        elif (isinstance(self.name, string)):
+        elif (isinstance(self.name, str)):
             self.type="TEXT"
         else :
             return "ERROR"
