@@ -61,6 +61,11 @@ class Rel:
     def __init__(self, table):
         # super(, self).__init__()
         self.table = table
+    def __add__(rel1, rel2):
+        return Union(rel1,rel2)
+    def __sub__(rel1, rel2):
+        return Diff(rel1,rel2)
+
     def execute(self,dbSchema):
         #vérifie si la table existe
         for table in dbSchema.getDbschema():
