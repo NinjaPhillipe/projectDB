@@ -12,7 +12,7 @@ rel = Rel('users')
 print("Expected WORK :",rel.execute(dbSchema))
 
 ############################SELECT###############################
-select = Select(Eq("id",Cst("0")),Rel("users"))
+select = Select(Eq("id",Cst(0)),Rel("users"))
 print("Expected WORK :",select.execute(dbSchema))
 
 select = Select(Eq("shitshit",Cst("0")),Rel("users"))

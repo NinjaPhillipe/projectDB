@@ -38,7 +38,7 @@ class Cst:
     valid = True
     def __init__(self, name):
         # super(, self).__init__()
-        self.name = str(name)
+        self.name = name
         self.type = ""
         if (isinstance(self.name, int)):
             self.type='INTEGER'
