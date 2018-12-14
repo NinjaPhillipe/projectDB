@@ -91,14 +91,25 @@ class Select:
         self.eq = eq
         self.rel = rel
     def execute(self, dbSchema):
+        relValid=False
+        colValid=False
+        constanteValid=False
         for table in dbSchema.getDbschema():
             if(table[0]==self.rel.table):
+                relValid=True
                 for col in table[1]:
                     if(self.eq.col == col):
+                        colValid=True
                         index = table[1].index(col) #on récupere l'indice de la col
                         if(self.eq.constante.type==table[2][index]): #type consatnte == type de la colonne
+                            constanteValid=True
                             return "SELECT * FROM {0} WHERE {1}".format(self.rel.table,str(self.eq))
-        return "ERROR"
+        if(not relValid):
+            return "ERROR table does not exist"
+        elif(not colValid):
+            return "ERROR col not valid"
+        elif(not constanteValid):
+            return "ERROR constante not valid"
 class Proj:
     """docstring for ."""
     type = "request"
