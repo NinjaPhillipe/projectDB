@@ -67,7 +67,10 @@ class Rel:
             if(table[0]==self.table):
                 return "{}".format(self.table)
         return "ERROR"
-
+    def getRelSchema(self,dbSchema):
+        for table in dbSchema.getDbschema():
+            if(table[0]==self.table):
+                return table
 class Eq:
     """Objet representant une egalité"""
     type = "eq"
@@ -78,6 +81,8 @@ class Eq:
         self.constante = constante
     def execute(self,dbSchema):
         return "{} = {}".format(self.col,self.constante.execute(dbSchema))
+    def __str__(self):
+        return self.col +"="+str(self.constante.name)
 class Select:
     """docstring for ."""
     type = "request"
@@ -92,19 +97,8 @@ class Select:
                     if(self.eq.col == col):
                         index = table[1].index(col) #on récupere l'indice de la col
                         if(self.eq.constante.type==table[2][index]): #type consatnte == type de la colonne
-                            return "WORK" ##############return test
-
-
+                            return "SELECT * FROM {0} WHERE {1}".format(self.rel.table,str(self.eq))
         return "ERROR"
-
-
-        # if(self.rel.type == "rel" and self.eq.type == "eq"):
-        #     self.request = "SELECT * FROM {1} WHERE {0}".format(self.eq.execute(dbSchema),self.rel.execute(dbSchema))
-        # else:
-        #     self.request = "Error invalid argument type"
-        #     self.valid = False
-        # return self.request
-
 class Proj:
     """docstring for ."""
     type = "request"
