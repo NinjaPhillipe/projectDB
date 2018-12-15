@@ -35,11 +35,10 @@ class DbSchema:
 
 class Main:
     """docstring for main."""
-    valid=False
     def __init__(self):
-        pass
+        self._valid=False
     def isValid(self):
-        return self.valid
+        return self._valid
 
 class Cst(Main):
     """Objet representant une constante"""
@@ -48,13 +47,13 @@ class Cst(Main):
         self.name = name
         self.type = ""
         if (isinstance(self.name, int)):
-            self.valid=True
+            self._valid=True
             self.type='INTEGER'
         elif (isinstance(self.name, float)):
-            self.valid=True
+            self._valid=True
             self.type='REAL'
         elif (isinstance(self.name, str)):
-            self.valid=True
+            self._valid=True
             self.type="TEXT"
         else :
             return "ERROR"
@@ -63,13 +62,13 @@ class Cst(Main):
             return "{}".format(self.name)
         return "\"{}\"".format(self.name)
 
-class Rel:
+class Rel(Main):
     """Objet representant une table"""
     type = "rel"
-    valid = True
+    _valid = True
     #verifier par rapport a la base de donnée
     def __init__(self, table):
-        # super(, self).__init__()
+        super().__init__()
         self.table = table
     def __add__(rel1, rel2):
         return Union(rel1,rel2)
@@ -89,20 +88,18 @@ class Rel:
 class Eq:
     """Objet representant une egalité"""
     type = "eq"
-    valid = True
     def __init__(self, col,constante):
-        # super(, self).__init__()
         self.col = col
         self.constante = constante
     def execute(self,dbSchema):
         return "{} = {}".format(self.col,self.constante.execute(dbSchema))
     def __str__(self):
         return self.col +"="+str(self.constante.name)
-class Select:
+class Select(Main):
     """docstring for ."""
     type = "request"
     def __init__(self, eq,rel):
-        # super(, self).__init__()
+        super().__init__()
         self.eq = eq
         self.rel = rel
     def execute(self, dbSchema):
@@ -116,6 +113,7 @@ class Select:
                         index = table[1].index(col) #on récupere l'indice de la col
                         if(self.eq.constante.type==table[2][index]): #type consatnte == type de la colonne
                             constanteValid=True
+                            self._valid =True
                             return "SELECT * FROM {0} WHERE {1}".format(self.rel.table,str(self.eq))
         #on retourne le message d'erreur en focntion de l'ordre de verification
         if(not relValid):
@@ -149,7 +147,6 @@ class Proj:
 class Join:
     """docstring for ."""
     type = "join"
-    valid = True
     def __init__(self, exp1,exp2):
         # super(, self).__init__()
         self.exp1 = exp1
@@ -161,7 +158,6 @@ class Join:
 class Rename: #incorrect
     """docstring for Rename."""
     type = "rename"
-    valid = True
     def __init__(self, col,newName,table):
         # super(Rename, print("\n SELECT")self).__init__()
         self.col = col
@@ -172,7 +168,6 @@ class Rename: #incorrect
 class Union:
     """docstring for Union."""
     type = "union"
-    valid = True
     def __init__(self,exp1,exp2):
         # super(Union, self).__init__()
         self.exp1 = exp1
@@ -187,7 +182,6 @@ class Union:
 class Diff:
     """docstring for ."""
     type = "diff"
-    valid = True
     def __init__(self, exp1,exp2):
         # super(, self).__init__()
         self.exp1 = exp1
