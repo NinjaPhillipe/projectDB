@@ -3,6 +3,8 @@ from operation import *
 
 dbSchema = DbSchema("my_db.db")
 
+cst = Cst(0)
+print(cst.isValid())
 ##############ERROR#########
 rel = Rel('CC')
 print("Expected ERROR :",rel.execute(dbSchema))
@@ -58,13 +60,15 @@ print("Expected ERROR :",select.execute(dbSchema))
 # print(glob)
 
 
-# class MyTest(unittest.TestCase):
-#     def test(self):
-#         ############################SELECT###############################
-#         self.assertEqual(str(select),"SELECT * FROM CC WHERE Country = \"Mali\"")
-#         self.assertEqual(str(select2),"SELECT * FROM CC WHERE Money = 100")
-#         ##########################PROJECTION#############################
-#         # self.assertEqual(str(),"SELECT Country,Money FROM (SELECT * FROM CC WHERE Country = \"Mali\")")
-#
-# if __name__ == '__main__':
-#     unittest.main()
+class MyTest(unittest.TestCase):
+    def test(self):
+        ############################Cst###############################
+        self.assertEqual(Cst(0).type,"INTEGER")
+        self.assertEqual(Cst("0").type,"TEXT")
+        self.assertEqual(Cst("rrrr").type,"TEXT")
+        self.assertEqual(Cst(1.5).type,"REAL")
+        ##########################PROJECTION#############################
+        # self.assertEqual(str(),"SELECT Country,Money FROM (SELECT * FROM CC WHERE Country = \"Mali\")")
+
+if __name__ == '__main__':
+    unittest.main()

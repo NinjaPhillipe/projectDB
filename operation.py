@@ -33,18 +33,28 @@ class DbSchema:
         #format [table, colonoe, type]
         return str(self.tab)
 
-class Cst:
+class Main:
+    """docstring for main."""
+    valid=False
+    def __init__(self):
+        pass
+    def isValid(self):
+        return self.valid
+
+class Cst(Main):
     """Objet representant une constante"""
-    valid = True
     def __init__(self, name):
-        # super(, self).__init__()
+        super().__init__()
         self.name = name
         self.type = ""
         if (isinstance(self.name, int)):
+            self.valid=True
             self.type='INTEGER'
         elif (isinstance(self.name, float)):
+            self.valid=True
             self.type='REAL'
         elif (isinstance(self.name, str)):
+            self.valid=True
             self.type="TEXT"
         else :
             return "ERROR"
