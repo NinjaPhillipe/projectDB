@@ -36,7 +36,9 @@ class DbSchema:
 class Main:
     """docstring for main."""
     def __init__(self):
+        self._structure="CRITICALERROR"
         self._valid=False
+        self._type="UNVALIDTYPE"
     def isValid(self):
         return self._valid
 
@@ -58,17 +60,18 @@ class Cst(Main):
         else :
             return "ERROR"
     def validation(self, dbSchema):
-        if (self.name.isdigit()):
-            return "{}".format(self.name)
-        return "\"{}\"".format(self.name)
+        pass
+        # if (self.name.isdigit()):
+        #     return "{}".format(self.name)
+        # return "\"{}\"".format(self.name)
 
 class Rel(Main):
     """Objet representant une table"""
-    type = "rel"
     _valid = True
     #verifier par rapport a la base de donnée
     def __init__(self, table):
         super().__init__()
+        self._type = "rel"
         self.table = table
     def __add__(rel1, rel2):
         return Union(rel1,rel2)
@@ -87,8 +90,8 @@ class Rel(Main):
                 return table
 class Eq:
     """Objet representant une egalité"""
-    type = "eq"
     def __init__(self, col,constante):
+        self._type = "eq"
         self.col = col
         self.constante = constante
     def validation(self,dbSchema):
@@ -97,9 +100,9 @@ class Eq:
         return self.col +"="+str(self.constante.name)
 class Select(Main):
     """docstring for ."""
-    type = "request"
     def __init__(self, eq,rel):
         super().__init__()
+        self._type = "request"
         self.eq = eq
         self.rel = rel
     def validation(self, dbSchema):
@@ -124,10 +127,9 @@ class Select(Main):
             return "ERROR constante is not valid"
 class Proj:
     """docstring for ."""
-    type = "request"
-    valid = True
     def __init__(self, arrayCol,fff):
         # super(, self).__init__()
+        self._type = "request"
         self.arrayCol = arrayCol
         self.fff = fff
     def validation(self,dbSchema):
@@ -146,9 +148,9 @@ class Proj:
         #     return """ERROR {1} is not a valid argument \n ----> SELECT {0} FROM {1}""".format(str(tmp), self.fff.validation(dbSchema))
 class Join:
     """docstring for ."""
-    type = "join"
     def __init__(self, exp1,exp2):
         # super(, self).__init__()
+        self._type = "join"
         self.exp1 = exp1
         self.exp2 = exp2
     def __str__(self):
@@ -157,9 +159,9 @@ class Join:
         return "SELECT * FROM ({0}) INNER JOIN ON (({0}).key = ({1}).key)".format(self.exp1,self.exp2)
 class Rename: #incorrect
     """docstring for Rename."""
-    type = "rename"
     def __init__(self, col,newName,table):
         # super(Rename, print("\n SELECT")self).__init__()
+        self._type = "rename"
         self.col = col
         self.newName = newName
         self.table = table
@@ -167,9 +169,9 @@ class Rename: #incorrect
         return "SELECT {} \"{}\" FROM {}".format(self.col,self.newName,self.table)
 class Union:
     """docstring for Union."""
-    type = "union"
     def __init__(self,exp1,exp2):
         # super(Union, self).__init__()
+        self._type = "union"
         self.exp1 = exp1
         self.exp2 = exp2
     def validation(self,dbSchema):
@@ -181,9 +183,9 @@ class Union:
 
 class Diff:
     """docstring for ."""
-    type = "diff"
     def __init__(self, exp1,exp2):
         # super(, self).__init__()
+        self._type = "diff"
         self.exp1 = exp1
         self.exp2 = exp2
     def validation(self,dbSchema):
