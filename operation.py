@@ -57,7 +57,7 @@ class Cst(Main):
             self.type="TEXT"
         else :
             return "ERROR"
-    def execute(self, dbSchema):
+    def validation(self, dbSchema):
         if (self.name.isdigit()):
             return "{}".format(self.name)
         return "\"{}\"".format(self.name)
@@ -75,7 +75,7 @@ class Rel(Main):
     def __sub__(rel1, rel2):
         return Diff(rel1,rel2)
 
-    def execute(self,dbSchema):
+    def validation(self,dbSchema):
         #vérifie si la table existe
         for table in dbSchema.getDbschema():
             if(table[0]==self.table):
@@ -91,8 +91,8 @@ class Eq:
     def __init__(self, col,constante):
         self.col = col
         self.constante = constante
-    def execute(self,dbSchema):
-        return "{} = {}".format(self.col,self.constante.execute(dbSchema))
+    def validation(self,dbSchema):
+        return "{} = {}".format(self.col,self.constante.validation(dbSchema))
     def __str__(self):
         return self.col +"="+str(self.constante.name)
 class Select(Main):
@@ -102,7 +102,7 @@ class Select(Main):
         super().__init__()
         self.eq = eq
         self.rel = rel
-    def execute(self, dbSchema):
+    def validation(self, dbSchema):
         relValid,colValid,constanteValid=False,False,False
         for table in dbSchema.getDbschema():
             if(table[0]==self.rel.table): #on verifie si la table existe dans la base de donnée
@@ -130,7 +130,7 @@ class Proj:
         # super(, self).__init__()
         self.arrayCol = arrayCol
         self.fff = fff
-    def execute(self,dbSchema):
+    def validation(self,dbSchema):
         for col in arrayCol:
             print("NOT MPLEMENTED")
         # tmp = ""
@@ -139,11 +139,11 @@ class Proj:
         #         tmp+=","
         #     tmp+=t
         # if (self.fff.type == "request"):
-        #     return "SELECT {} FROM ({})".format(str(tmp),self.fff.execute(dbSchema))
+        #     return "SELECT {} FROM ({})".format(str(tmp),self.fff.validation(dbSchema))
         # elif(self.fff.type == "rel"):
-        #     return "SELECT {} FROM {}".format(str(tmp),self.fff.execute(dbSchema))
+        #     return "SELECT {} FROM {}".format(str(tmp),self.fff.validation(dbSchema))
         # else:
-        #     return """ERROR {1} is not a valid argument \n ----> SELECT {0} FROM {1}""".format(str(tmp), self.fff.execute(dbSchema))
+        #     return """ERROR {1} is not a valid argument \n ----> SELECT {0} FROM {1}""".format(str(tmp), self.fff.validation(dbSchema))
 class Join:
     """docstring for ."""
     type = "join"
@@ -172,12 +172,12 @@ class Union:
         # super(Union, self).__init__()
         self.exp1 = exp1
         self.exp2 = exp2
-    def execute(self,dbSchema):
-        # print(self.exp1.execute(dbSchema))
-        return "{} UNION {}".format(self.exp1.execute(dbSchema),self.exp2.execute(dbSchema))
+    def validation(self,dbSchema):
+        # print(self.exp1.validation(dbSchema))
+        return "{} UNION {}".format(self.exp1.validation(dbSchema),self.exp2.validation(dbSchema))
 
     # def __str__(self):
-    #     return "{} UNION {}".format(self.exp1.execute(dbSchema).,self.exp2.execute(dbSchema))
+    #     return "{} UNION {}".format(self.exp1.validation(dbSchema).,self.exp2.validation(dbSchema))
 
 class Diff:
     """docstring for ."""
@@ -186,5 +186,5 @@ class Diff:
         # super(, self).__init__()
         self.exp1 = exp1
         self.exp2 = exp2
-    def execute(self,dbSchema):
-        return "{} EXCEPT {}".format(self.exp1.execute(dbSchema),self.exp2.execute(dbSchema))
+    def validation(self,dbSchema):
+        return "{} EXCEPT {}".format(self.exp1.validation(dbSchema),self.exp2.validation(dbSchema))

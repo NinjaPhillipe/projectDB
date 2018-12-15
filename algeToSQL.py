@@ -5,35 +5,35 @@ dbSchema = DbSchema("my_db.db")
 
 ##############ERROR#########
 rel = Rel('CC')
-print("Expected ERROR :",rel.execute(dbSchema))
+print("Expected ERROR :",rel.validation(dbSchema))
 
 ###############WORK###########
 rel = Rel('users')
-print("Expected WORK :",rel.execute(dbSchema))
+print("Expected WORK :",rel.validation(dbSchema))
 
 ############################SELECT###############################
 select = Select(Eq("id",Cst(0)),Rel("users"))
-print("Expected WORK :",select.execute(dbSchema))
+print("Expected WORK :",select.validation(dbSchema))
 
 select = Select(Eq("id",Cst(0)),Rel("us"))
-print("Expected ERROR :",select.execute(dbSchema))
+print("Expected ERROR :",select.validation(dbSchema))
 
 select = Select(Eq("id",Cst("0")),Rel("users"))
-print("Expected ERROR :",select.execute(dbSchema))
+print("Expected ERROR :",select.validation(dbSchema))
 
 select = Select(Eq("shitshit",Cst(0)),Rel("users"))
-print("Expected ERROR :",select.execute(dbSchema))
+print("Expected ERROR :",select.validation(dbSchema))
 # ##########################PROJECTION#############################
 # print("\n PROJECTION")
 # proj = Proj(["Country","Money"],select)
-# print(proj.execute("TEST"))
+# print(proj.validation("TEST"))
 #
 # proj2 = Proj(["Country","Money"],rel)
-# print(proj2.execute("TEST"))
+# print(proj2.validation("TEST"))
 #
 # #ERROR
 # proj3 = Proj(["Country","Money"],eq)
-# print(proj3.execute("TEST"))
+# print(proj3.validation("TEST"))
 #
 # #############################JOIN################################
 # print("\n JOIN")
@@ -46,11 +46,11 @@ print("Expected ERROR :",select.execute(dbSchema))
 # ############################UNION################################
 # print("\n UNION")
 # union = Union(select,select)
-# print(union.execute("TEST"))
+# print(union.validation("TEST"))
 # ##########################DIFFERENCE#############################
 # print("\n DIFFERENCE")
 # diff = Diff(select,select)
-# print(diff.execute("TEST"))
+# print(diff.validation("TEST"))
 # ############################Global###############################
 # print("\n GLOBAL")
 
@@ -67,19 +67,19 @@ class MyTest(unittest.TestCase):
         self.assertEqual(Cst(1.5).type,"REAL")
     def test_Select(self):
         select = Select(Eq("id",Cst(0)),Rel("users"))
-        select.execute(self.dbSchema)
+        select.validation(self.dbSchema)
         self.assertTrue(select.isValid())
 
         select = Select(Eq("id",Cst(0)),Rel("us"))
-        select.execute(self.dbSchema)
+        select.validation(self.dbSchema)
         self.assertFalse(select.isValid())
 
         select = Select(Eq("id",Cst("0")),Rel("users"))
-        select.execute(self.dbSchema)
+        select.validation(self.dbSchema)
         self.assertFalse(select.isValid())
 
         select = Select(Eq("shitshit",Cst(0)),Rel("users"))
-        select.execute(self.dbSchema)
+        select.validation(self.dbSchema)
         self.assertFalse(select.isValid())
 if __name__ == '__main__':
     unittest.main()
