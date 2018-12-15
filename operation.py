@@ -37,12 +37,15 @@ class Main:
     """docstring for main."""
     def __init__(self):
         self._structure="CRITICALERROR"
-        # self._valid=False
+        self._valid=False
         self._type="UNVALIDTYPE"
+        self._sorte = None
     # def isValid(self):
     #     return self._valid
     def getStructure(self):
         return self._structure
+    def toRel(self):
+        print("NOT IMPLEMENTED IN MAIN")
 
 class Cst(Main):
     """Objet representant une constante"""
@@ -119,7 +122,9 @@ class Select(Main):
                         index = table[1].index(col) #on récupere l'indice de la col
                         if(self.eq.constante.type==table[2][index]): #type consatnte == type de la colonne
                             constanteValid=True
+                            self._sorte = table[1]
                             self._structure = "SELECT * FROM {} WHERE {}".format(self.rel.table,str(self.eq))
+                            self._valid = True
                             return True
         #on retourne le message d'erreur en focntion de l'ordre de verification
         if(not relValid):

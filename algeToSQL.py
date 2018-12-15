@@ -4,18 +4,6 @@ from operation import *
 dbSchema = DbSchema()
 dbSchema.setDataBase("my_db.db")
 
-############################SELECT###############################
-select = Select(Eq("id",Cst(0)),Rel("users"))
-print("Expected WORK :",select.validation(dbSchema))
-
-select = Select(Eq("id",Cst(0)),Rel("us"))
-print("Expected ERROR :",select.validation(dbSchema))
-
-select = Select(Eq("id",Cst("0")),Rel("users"))
-print("Expected ERROR :",select.validation(dbSchema))
-
-select = Select(Eq("shitshit",Cst(0)),Rel("users"))
-print("Expected ERROR :",select.validation(dbSchema))
 # ##########################PROJECTION#############################
 # print("\n PROJECTION")
 # proj = Proj(["Country","Money"],select)
@@ -65,6 +53,7 @@ class MyTest(unittest.TestCase):
     def test_Select(self):
         select = Select(Eq("id",Cst(0)),Rel("users"))
         self.assertTrue(select.validation(self.dbSchema))
+        self.assertEqual(select._sorte,['id', 'name', 'age'])
 
         select = Select(Eq("id",Cst(0)),Rel("us"))
         self.assertFalse(select.validation(self.dbSchema))
