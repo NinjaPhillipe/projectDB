@@ -91,10 +91,14 @@ class Rel(Main):
                 return True
         self._structure = "ERROR"
         return False
-    def getRelSchema(self,dbSchema):
-        for table in dbSchema.getDbschema():
-            if(table[0]==self.table):
-                return table
+    # def getRelSchema(self,dbSchema):
+    #     for table in dbSchema.getDbschema():
+    #         if(table[0]==self.table):
+    #             return table
+    def sorte(self):
+        return self._table ######INCORRECT
+    def toRel(self):
+        return self
 class Eq:
     """Objet representant une egalité"""
     def __init__(self, col,constante):
@@ -140,9 +144,11 @@ class Proj:
         # super(, self).__init__()
         self._type = "request"
         self.arrayCol = arrayCol
-        self.fff = fff
+        self.rel = rel
     def validation(self,dbSchema):
         for col in arrayCol:
+            exist=False
+            # for col in rel.toRel().getDbschema():
             print("NOT MPLEMENTED")
         # tmp = ""
         # for t in self.arrayCol:
