@@ -2,10 +2,10 @@ import sqlite3
 
 class DbSchema:
     """docstring for DbSchema."""
-    def __init__(self, dbname):
+    def __init__(self):
         # super(DbSchema, self).__init__()
         self.tab = []
-        self.tables = []
+    def setDataBase(self, dbname):
         self.dbname = dbname
         self.db = sqlite3.connect(self.dbname)
         for table in self.getTables():
@@ -37,10 +37,12 @@ class Main:
     """docstring for main."""
     def __init__(self):
         self._structure="CRITICALERROR"
-        self._valid=False
+        # self._valid=False
         self._type="UNVALIDTYPE"
-    def isValid(self):
-        return self._valid
+    # def isValid(self):
+    #     return self._valid
+    def getStructure(self):
+        return self._structure
 
 class Cst(Main):
     """Objet representant une constante"""
@@ -82,8 +84,10 @@ class Rel(Main):
         #vérifie si la table existe
         for table in dbSchema.getDbschema():
             if(table[0]==self.table):
-                return "{}".format(self.table)
-        return "ERROR"
+                self._structure = "{}".format(self.table)
+                return True
+        self._structure = "ERROR"
+        return False
     def getRelSchema(self,dbSchema):
         for table in dbSchema.getDbschema():
             if(table[0]==self.table):
@@ -103,8 +107,7 @@ class Select(Main):
     def __init__(self, eq,rel):
         super().__init__()
         self._type = "request"
-        self.eq = eq
-        self.rel = rel
+        self.eq ,self.rel = eq, rel
     def validation(self, dbSchema):
         relValid,colValid,constanteValid=False,False,False
         for table in dbSchema.getDbschema():
@@ -116,15 +119,16 @@ class Select(Main):
                         index = table[1].index(col) #on récupere l'indice de la col
                         if(self.eq.constante.type==table[2][index]): #type consatnte == type de la colonne
                             constanteValid=True
-                            self._valid =True
-                            return "SELECT * FROM {0} WHERE {1}".format(self.rel.table,str(self.eq))
+                            self._structure = "SELECT * FROM {} WHERE {}".format(self.rel.table,str(self.eq))
+                            return True
         #on retourne le message d'erreur en focntion de l'ordre de verification
         if(not relValid):
-            return "ERROR table does not exist"
+            self._structure = "ERROR table does not exist"
         elif(not colValid):
-            return "ERROR col does not exist"
+            self._structure = "ERROR col does not exist"
         elif(not constanteValid):
-            return "ERROR constante is not valid"
+            self._structure = "ERROR constante is not valid"
+        return False
 class Proj:
     """docstring for ."""
     def __init__(self, arrayCol,fff):

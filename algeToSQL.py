@@ -1,15 +1,8 @@
 import unittest
 from operation import *
 
-dbSchema = DbSchema("my_db.db")
-
-##############ERROR#########
-rel = Rel('CC')
-print("Expected ERROR :",rel.validation(dbSchema))
-
-###############WORK###########
-rel = Rel('users')
-print("Expected WORK :",rel.validation(dbSchema))
+dbSchema = DbSchema()
+dbSchema.setDataBase("my_db.db")
 
 ############################SELECT###############################
 select = Select(Eq("id",Cst(0)),Rel("users"))
@@ -59,27 +52,27 @@ print("Expected ERROR :",select.validation(dbSchema))
 
 
 class MyTest(unittest.TestCase):
-    dbSchema = DbSchema("my_db.db")
+    dbSchema = DbSchema()
+    dbSchema.tab = [['users', ['id', 'name', 'age'], ['INTEGER', 'TEXT', 'INTERGER']], ['annuaire', ['id', 'name', 'email', 'tel'], ['INTEGER', 'TEXT', 'TEXT', 'TEXT']]]
     def test_Cst(self):
         self.assertEqual(Cst(0).type,"INTEGER")
         self.assertEqual(Cst("0").type,"TEXT")
         self.assertEqual(Cst("rrrr").type,"TEXT")
         self.assertEqual(Cst(1.5).type,"REAL")
+    def test_Rel(self):
+        self.assertFalse(Rel('CC').validation(self.dbSchema))
+        self.assertTrue(Rel('users').validation(self.dbSchema))
     def test_Select(self):
         select = Select(Eq("id",Cst(0)),Rel("users"))
-        select.validation(self.dbSchema)
-        self.assertTrue(select.isValid())
+        self.assertTrue(select.validation(self.dbSchema))
 
         select = Select(Eq("id",Cst(0)),Rel("us"))
-        select.validation(self.dbSchema)
-        self.assertFalse(select.isValid())
+        self.assertFalse(select.validation(self.dbSchema))
 
         select = Select(Eq("id",Cst("0")),Rel("users"))
-        select.validation(self.dbSchema)
-        self.assertFalse(select.isValid())
+        self.assertFalse(select.validation(self.dbSchema))
 
         select = Select(Eq("shitshit",Cst(0)),Rel("users"))
-        select.validation(self.dbSchema)
-        self.assertFalse(select.isValid())
+        self.assertFalse(select.validation(self.dbSchema))
 if __name__ == '__main__':
     unittest.main()
