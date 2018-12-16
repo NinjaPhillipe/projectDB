@@ -243,11 +243,12 @@ class Rename(Main): #incorrect
     def sorte(self):
         if(self._valid):
             index = self.rel.sorte()[0].index(self.col)# car col est dans sorte() car la requete est valid
-            sorte=[]
-            for el in self.rel.sorte()[0]: #Deepcopy
-                sorte.append(el)
-            sorte[index] = self.newName
-            return sorte
+            res=[[],[]]
+            for i in range(len(self.rel.sorte()[0])): #deepcopy
+                res[0].append(self.rel.sorte()[0][i])
+                res[1].append(self.rel.sorte()[1][i])
+            res[0][index] = self.newName
+            return res
     # def __str__(self):
     #     return "SELECT {} \"{}\" FROM {}".format(self.col,self.newName,self.table)
 
