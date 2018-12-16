@@ -50,7 +50,6 @@ class MyTest(unittest.TestCase):
     def test_Rel(self):
         self.assertFalse(Rel('CC').validation(self.dbSchema))
         self.assertTrue(Rel('users').validation(self.dbSchema))
-        self.assertTrue(Rel('users').toRel().validation(self.dbSchema))
     def test_Select(self):
         #projection sur une colonne
         select = Select(Eq('id',Cst(0)),Rel('users'))
@@ -84,5 +83,9 @@ class MyTest(unittest.TestCase):
 
         proj = Proj(['FAKECOL'],Rel('users'))
         self.assertFalse(proj.validation(self.dbSchema))
+    def test_Global(self):
+        glob = Proj(['name'],Select(Eq('id',Cst(0)),Rel('users')))
+        self.assertTrue(glob.validation(self.dbSchema))
+        # self.assertEqual(glob.sorte(),[['name'],['TEXT']])
 if __name__ == '__main__':
     unittest.main()

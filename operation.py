@@ -45,8 +45,6 @@ class Main:
         self._sorte = None
     def getStructure(self):
         return self._structure
-    def toRel(self):
-        print("NOT IMPLEMENTED IN MAIN")
     def sorte(self):
         return self._sorte
     def toSql(self):
@@ -104,8 +102,7 @@ class Rel(Main):
     #     for table in dbSchema.getDbschema():
     #         if(table[0]==self.table):
     #             return tableT
-    def toRel(self):
-        return self
+
 class Eq:
     """Objet representant une egalité"""
     def __init__(self, col,constante):
@@ -148,8 +145,7 @@ class Select(Main):
         elif(not constanteValid):
             self._structure = "ERROR constante is not valid"
         return False
-    def toRel(self):
-        print("NOT YET IMPLEMENTED")
+
 class Proj(Main):
     """docstring for ."""
     def __init__(self, arrayCol,rel):
@@ -164,7 +160,8 @@ class Proj(Main):
                 exist=False
                 try:
                     # si index() ne genere pas d'erreur alors la col fait partie de sorte()
-                    sorte = self.rel.toRel().sorte()
+                    # sorte = self.rel.toRel().sorte()
+                    sorte = self.rel.sorte()
                     index = sorte[0].index(col)
                     type.append(sorte[1][index])
                     self._valid = True
@@ -181,8 +178,7 @@ class Proj(Main):
             tmp+=t
         self._structure = "SELECT {} FROM ({})".format(str(tmp),self.rel._structure)
         return True
-    def toRel(self):
-        print("NOT YET IMPLEMENTED")
+
 class Join(Main):
     """docstring for ."""
     def __init__(self, exp1,exp2):
@@ -194,8 +190,7 @@ class Join(Main):
     #     #si colonene en commun faire une intersection
     #     #sinon pas de colonne en commun faire union
     #     return "SELECT * FROM ({0}) INNER JOIN ON (({0}).key = ({1}).key)".format(self.exp1,self.exp2)
-    def toRel(self):
-        print("NOT YET IMPLEMENTED")
+
 class Rename(Main): #incorrect
     """docstring for Rename."""
     def __init__(self, col,newName,table):
@@ -206,8 +201,7 @@ class Rename(Main): #incorrect
         self.table = table
     # def __str__(self):
     #     return "SELECT {} \"{}\" FROM {}".format(self.col,self.newName,self.table)
-    def toRel(self):
-        print("NOT YET IMPLEMENTED")
+
 class Union(Main):
     """docstring for Union."""
     def __init__(self,exp1,exp2):
@@ -218,8 +212,7 @@ class Union(Main):
     def validation(self,dbSchema):
         # print(self.exp1.validation(dbSchema))
         return "{} UNION {}".format(self.exp1.validation(dbSchema),self.exp2.validation(dbSchema))
-    def toRel(self):
-        print("NOT YET IMPLEMENTED")
+
     # def __str__(self):
     #     return "{} UNION {}".format(self.exp1.validation(dbSchema).,self.exp2.validation(dbSchema))
 
@@ -232,5 +225,3 @@ class Diff:
         self.exp2 = exp2
     def validation(self,dbSchema):
         return "{} EXCEPT {}".format(self.exp1.validation(dbSchema),self.exp2.validation(dbSchema))
-    def toRel(self):
-        print("NOT YET IMPLEMENTED")
