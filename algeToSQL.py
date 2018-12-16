@@ -4,6 +4,8 @@ from operation import *
 class MyTest(unittest.TestCase):
     dbSchema = DbSchema()
     dbSchema.tab = [['users', ['id', 'name', 'age'], ['INTEGER', 'TEXT', 'INTERGER']], ['annuaire', ['id', 'name', 'email', 'tel'], ['INTEGER', 'TEXT', 'TEXT', 'TEXT']]]
+    def test_sorteEquality(self):
+        self.assertTrue(sorteEquality(["a","b","c"],["c","a","b"]))
     def test_Cst(self):
         self.assertEqual(Cst(0).getType(),'INTEGER')
         self.assertEqual(Cst('0').getType(),'TEXT')
@@ -49,6 +51,10 @@ class MyTest(unittest.TestCase):
         ###########TEST_ERROR#################
         proj = Proj(['FAKECOL'],Rel('users'))
         self.assertFalse(proj.validation(self.dbSchema))
+    def test_Join(self):
+        join = Join(Rel("users"),Rel("annuaire"))
+        self.assertTrue(join.validation(self.dbSchema))
+        # self.assertEqual(join.sorte(),)
     def test_Rename(self):
         rename = Rename("id","num",Rel("users"))
         self.assertTrue(rename.validation(self.dbSchema))

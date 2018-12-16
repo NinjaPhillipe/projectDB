@@ -3,6 +3,17 @@
 
 import sqlite3
 
+def sorteEquality(sorte1,sorte2):
+    #verificaton de l'égalité par double inclusion
+    for col in sorte1:
+        if(not col in sorte2):
+            print("1 :",col)
+            return False
+    for col in sorte2:
+        if(not col in sorte1):
+            print("2 :",col)
+            return False
+    return True
 class DbSchema:
     """docstring for DbSchema."""
     def __init__(self):
@@ -189,10 +200,21 @@ class Join(Main):
         self._type = "join"
         self.exp1 = exp1
         self.exp2 = exp2
-    # def __str__(self):
-    #     #si colonene en commun faire une intersection
-    #     #sinon pas de colonne en commun faire union
-    #     return "SELECT * FROM ({0}) INNER JOIN ON (({0}).key = ({1}).key)".format(self.exp1,self.exp2)
+    def validation(self,dbSchema):
+        if(self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema)):
+            self._valid = True
+            self._structure = "NOT YEST IMPLEMENTED"
+            return True
+        return False
+    def sorte(self):
+        if(self._valid):
+            res = []
+            for col in self.exp1.sorte():
+                res.append(col)
+            for col in self.exp2.sorte(): #ajoute les col si elles ne sont pas dans res
+                if(not col in res):
+                    res.append(col)
+            return res
 
 class Rename(Main): #incorrect
     """docstring for Rename."""
