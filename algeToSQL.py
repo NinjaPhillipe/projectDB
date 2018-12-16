@@ -5,7 +5,12 @@ class MyTest(unittest.TestCase):
     dbSchema = DbSchema()
     dbSchema.tab = [['users', ['id', 'name', 'age'], ['INTEGER', 'TEXT', 'INTERGER']], ['annuaire', ['id', 'name', 'email', 'tel'], ['INTEGER', 'TEXT', 'TEXT', 'TEXT']]]
     def test_sorteEquality(self):
-        self.assertTrue(sorteEquality(["a","b","c"],["c","a","b"]))
+        self.assertTrue(sorteEquality([['id', 'name', 'age'], ['INTEGER', 'TEXT', 'INTERGER']],[['id', 'name', 'age'], ['INTEGER', 'TEXT', 'INTERGER']]))
+
+        ###########TEST_ERROR#################
+        self.assertFalse(sorteEquality([['id'], ['INTEGER']],[['id', 'name', 'age'], ['INTEGER', 'TEXT', 'INTERGER']]))
+        self.assertFalse(sorteEquality([['id'], ['TEXT']],[['id'], ['INTEGER']]))
+        self.assertFalse(sorteEquality([['id1'], ['INTEGER']],[['id'], ['INTEGER']]))
     def test_Cst(self):
         self.assertEqual(Cst(0).getType(),'INTEGER')
         self.assertEqual(Cst('0').getType(),'TEXT')

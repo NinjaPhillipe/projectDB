@@ -5,14 +5,18 @@ import sqlite3
 
 def sorteEquality(sorte1,sorte2):
     #verificaton de l'égalité par double inclusion
-    for col in sorte1:
-        if(not col in sorte2):
-            print("1 :",col)
+    #plus verifier si les types des colonnes sont egaux
+    for col in sorte1[0]:
+        if(not col in sorte2[0]):
             return False
-    for col in sorte2:
-        if(not col in sorte1):
+        if(not sorte1[1][sorte1[0].index(col)] == sorte2[1][sorte2[0].index(col)]):
+            return False # type colonne incorrect
+    for col in sorte2[0]:
+        if(not col in sorte1[0]):
             print("2 :",col)
             return False
+        if(not sorte1[1][sorte1[0].index(col)] == sorte2[1][sorte2[0].index(col)]):
+            return False # type colonne incorrect
     return True
 class DbSchema:
     """docstring for DbSchema."""
