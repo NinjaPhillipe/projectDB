@@ -63,11 +63,12 @@ class MyTest(unittest.TestCase):
         union = Union(Select(Eq('id',Cst(0)),Rel('users')),Select(Eq('id',Cst(0)),Rel('annuaire')))
         self.assertFalse(union.validation(self.dbSchema))
     def test_Diff(self):
-        diff = Diff(Rel("users"),Rel("annuaire"))
+        diff = Diff(Rel("users"),Rel("users"))
         self.assertTrue(diff.validation(self.dbSchema))
-        self.assertEqual(diff.toSql(),"SELECT * FROM users MINUS SELECT * FROM annuaire")
-
         ###########TEST_ERROR#################
+        diff = Diff(Rel("users"),Rel("annuaire"))
+        self.assertFalse(diff.validation(self.dbSchema))
+
         diff = Diff(Rel("users"),Rel("ERROR"))
         self.assertFalse(diff.validation(self.dbSchema))
     def test_Global(self):
