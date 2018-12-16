@@ -170,30 +170,29 @@ class Proj(Main):
         self.rel = rel
     def validation(self,dbSchema):
         type = []
-        if(self.rel.validation(dbSchema)):
-            for col in self.arrayCol:
-                exist=False
-                try:
-                    # si index() ne genere pas d'erreur alors la col fait partie de sorte()
-                    # sorte = self.rel.toRel().sorte()
-                    sorte = self.rel.sorte()
-                    index = sorte[0].index(col)
-                    type.append(sorte[1][index])
-                    self._valid = True
-                    tmp = ""
-                except Exception as e:
-                    self._structure ="ERROR COL DOES NOT EXIST FOR PROJECTION"
-                    return False
-        else:
+        if(not self.rel.validation(dbSchema)):
             self._structure = "ERROR SUB REQUEST"
             return False
-        self._sorte = [self.arrayCol ,type]
-        for t in self.arrayCol:
-            if( tmp != ""):
-                tmp+=","
-            tmp+=t
-        self._structure = "SELECT {} FROM ({})".format(str(tmp),self.rel._structure)
+        projCol=""
+        for col in self.arrayCol:
+            if(not col in self.rel.sorte()[0]):
+                self._structure ="ERROR COL DOES NOT EXIST FOR PROJECTION"
+                return False
+            if(projCol==""):
+                projCol +=col
+            else:
+                projCol +=",{}".format(col)
+        self._structure = "SELECT {} FROM ({})".format(projCol,self.rel._structure)
+        self._valid = True
         return True
+    def sorte(self):
+        if(self._valid):
+            res= [[],[]]
+            for col in self.arrayCol:
+                res[0].append(col)
+                res[1].append(self.rel.sorte()[1][self.rel.sorte()[0].index(col)])
+            return res
+
 
 class Join(Main):
     """docstring for ."""
@@ -268,7 +267,7 @@ class Union(Main):
         if(self._valid):
             return self.exp1.sorte()
 class Diff(Main):
-    """docstring for ."""
+    """docstring for Diff"""
     def __init__(self, exp1,exp2):
         Main.__init__(self)
         self._type = "diff"
