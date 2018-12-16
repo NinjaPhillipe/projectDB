@@ -49,24 +49,28 @@ class Main:
         print("NOT IMPLEMENTED IN MAIN")
     def sorte(self):
         return self._sorte
+    def toSql(self):
+        return self._structure
+    def getType(self):
+        return self._type
 
 class Cst(Main):
     """Objet representant une constante"""
     def __init__(self, name):
         # super().__init__()
         self.name = name
-        self.type = ""
+        self._type = ""
         if (isinstance(self.name, int)):
             self._valid=True
-            self.type='INTEGER'
+            self._type='INTEGER'
         elif (isinstance(self.name, float)):
             self._valid=True
-            self.type='REAL'
+            self._type='REAL'
         elif (isinstance(self.name, str)):
             self._valid=True
-            self.type="TEXT"
+            self._type="TEXT"
         else :
-            return "ERROR"
+            return 'ERROR'
     def validation(self, dbSchema):
         pass
         # if (self.name.isdigit()):
@@ -77,10 +81,10 @@ class Rel(Main):
     """Objet representant une table"""
     # _valid = True
     # verifier par rapport a la base de donnée
-    def __init__(self, table):
+    def __init__(self, name):
         Main.__init__(self)
         self._type = "rel"
-        self.table = table
+        self._name = name
     def __add__(rel1, rel2):
         return Union(rel1,rel2)
     def __sub__(rel1, rel2):
@@ -89,8 +93,8 @@ class Rel(Main):
     def validation(self,dbSchema):
         #vérifie si la table existe
         for table in dbSchema.getDbschema():
-            if(table[0]==self.table):
-                self._structure = "{}".format(self.table)
+            if(table[0]==self._name):
+                self._structure = "{}".format(self._name)
                 self._valid = True
                 self._sorte = [table[1],table[2]]
                 return True
@@ -111,7 +115,10 @@ class Eq:
     def validation(self,dbSchema):
         return "{} = {}".format(self.col,self.constante.validation(dbSchema))
     def __str__(self):
-        return self.col +"="+str(self.constante.name)
+        if(self.constante.getType()=="TEXT"):
+            return self.col +"=\""+str(self.constante.name)+"\""
+        else:
+            return self.col +"="+str(self.constante.name)
 class Select(Main):
     """docstring for ."""
     def __init__(self, eq,rel):
@@ -121,16 +128,16 @@ class Select(Main):
     def validation(self, dbSchema):
         relValid,colValid,constanteValid=False,False,False
         for table in dbSchema.getDbschema():
-            if(table[0]==self.rel.table): #on verifie si la table existe dans la base de donnée
+            if(table[0]==self.rel._name): #on verifie si la table existe dans la base de donnée
                 relValid=True
                 for col in table[1]:
                     if(self.eq.col == col): #on vérifie si colone existe
                         colValid=True
                         index = table[1].index(col) #on récupere l'indice de la col
-                        if(self.eq.constante.type==table[2][index]): #type consatnte == type de la colonne
+                        if(self.eq.constante.getType()==table[2][index]): #type consatnte == type de la colonne
                             constanteValid=True
                             self._sorte = [table[1],table[2]]
-                            self._structure = "SELECT * FROM {} WHERE {}".format(self.rel.table,str(self.eq))
+                            self._structure = "SELECT * FROM {} WHERE {}".format(self.rel._name,str(self.eq))
                             self._valid = True
                             return True
         #on retourne le message d'erreur en focntion de l'ordre de verification
@@ -152,19 +159,21 @@ class Proj(Main):
         self.rel = rel
     def validation(self,dbSchema):
         type = []
-        for col in self.arrayCol:
-            exist=False
-            self.rel.validation(dbSchema)
-            try:
-                # si index() ne genere pas d'erreur alors la col fait partie de sorte()
-                sorte = self.rel.toRel().sorte()
-                index = sorte[0].index(col)
-                type.append(sorte[1][index])
-                self._valid = True
-                tmp = ""
-            except Exception as e:
-                print("ERROR COL DOES NOT EXIST FOR PROJECTION")
-                return False
+        if(self.rel.validation(dbSchema)):
+            for col in self.arrayCol:
+                exist=False
+                try:
+                    # si index() ne genere pas d'erreur alors la col fait partie de sorte()
+                    sorte = self.rel.toRel().sorte()
+                    index = sorte[0].index(col)
+                    type.append(sorte[1][index])
+                    self._valid = True
+                    tmp = ""
+                except Exception as e:
+                    self._structure ="ERROR COL DOES NOT EXIST FOR PROJECTION"
+                    return False
+        else:
+            return "ERROR SUB REQUEST"
         self._sorte = [self.arrayCol ,type]
         for t in self.arrayCol:
             if( tmp != ""):

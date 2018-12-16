@@ -43,18 +43,25 @@ class MyTest(unittest.TestCase):
     dbSchema = DbSchema()
     dbSchema.tab = [['users', ['id', 'name', 'age'], ['INTEGER', 'TEXT', 'INTERGER']], ['annuaire', ['id', 'name', 'email', 'tel'], ['INTEGER', 'TEXT', 'TEXT', 'TEXT']]]
     def test_Cst(self):
-        self.assertEqual(Cst(0).type,'INTEGER')
-        self.assertEqual(Cst('0').type,'TEXT')
-        self.assertEqual(Cst('rrrr').type,'TEXT')
-        self.assertEqual(Cst(1.5).type,'REAL')
+        self.assertEqual(Cst(0).getType(),'INTEGER')
+        self.assertEqual(Cst('0').getType(),'TEXT')
+        self.assertEqual(Cst('rrrr').getType(),'TEXT')
+        self.assertEqual(Cst(1.5).getType(),'REAL')
     def test_Rel(self):
         self.assertFalse(Rel('CC').validation(self.dbSchema))
         self.assertTrue(Rel('users').validation(self.dbSchema))
         self.assertTrue(Rel('users').toRel().validation(self.dbSchema))
     def test_Select(self):
+        #projection sur une colonne
         select = Select(Eq('id',Cst(0)),Rel('users'))
         self.assertTrue(select.validation(self.dbSchema))
         self.assertEqual(select.sorte(),[['id', 'name', 'age'], ['INTEGER', 'TEXT', 'INTERGER']])
+        self.assertEqual(select.toSql(),"SELECT * FROM users WHERE id=0")
+        #projection sur plusieurs colonne
+        select = Select(Eq('name',Cst("Pierre")),Rel('users'))
+        self.assertTrue(select.validation(self.dbSchema))
+        self.assertEqual(select.sorte(),[['id', 'name', 'age'], ['INTEGER', 'TEXT', 'INTERGER']])
+        self.assertEqual(select.toSql(),"SELECT * FROM users WHERE name=\"Pierre\"")
 
         select = Select(Eq('id',Cst(0)),Rel('us'))
         self.assertFalse(select.validation(self.dbSchema))
@@ -68,10 +75,12 @@ class MyTest(unittest.TestCase):
         proj = Proj(['id'],Rel('users'))
         self.assertTrue(proj.validation(self.dbSchema))
         self.assertEqual(proj.sorte(),[['id'], ['INTEGER']])
+        self.assertEqual(proj.toSql(),"SELECT id FROM (users)")
 
         proj = Proj(['id','name'],Rel('users'))
         self.assertTrue(proj.validation(self.dbSchema))
         self.assertEqual(proj.sorte(),[['id', 'name'], ['INTEGER', 'TEXT']])
+        self.assertEqual(proj.toSql(),"SELECT id,name FROM (users)")
 
         proj = Proj(['FAKECOL'],Rel('users'))
         self.assertFalse(proj.validation(self.dbSchema))
