@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import sqlite3
 
 class DbSchema:
@@ -40,17 +43,17 @@ class Main:
         self._valid=False
         self._type="UNVALIDTYPE"
         self._sorte = None
-    # def isValid(self):
-    #     return self._valid
     def getStructure(self):
         return self._structure
     def toRel(self):
         print("NOT IMPLEMENTED IN MAIN")
+    def sorte(self):
+        return self._sorte
 
 class Cst(Main):
     """Objet representant une constante"""
     def __init__(self, name):
-        super().__init__()
+        # super().__init__()
         self.name = name
         self.type = ""
         if (isinstance(self.name, int)):
@@ -72,10 +75,10 @@ class Cst(Main):
 
 class Rel(Main):
     """Objet representant une table"""
-    _valid = True
-    #verifier par rapport a la base de donnée
+    # _valid = True
+    # verifier par rapport a la base de donnée
     def __init__(self, table):
-        super().__init__()
+        Main.__init__(self)
         self._type = "rel"
         self.table = table
     def __add__(rel1, rel2):
@@ -88,15 +91,15 @@ class Rel(Main):
         for table in dbSchema.getDbschema():
             if(table[0]==self.table):
                 self._structure = "{}".format(self.table)
+                self._valid = True
+                self._sorte = [table[1],table[2]]
                 return True
         self._structure = "ERROR"
         return False
     # def getRelSchema(self,dbSchema):
     #     for table in dbSchema.getDbschema():
     #         if(table[0]==self.table):
-    #             return table
-    def sorte(self):
-        return self._table ######INCORRECT
+    #             return tableT
     def toRel(self):
         return self
 class Eq:
@@ -112,7 +115,7 @@ class Eq:
 class Select(Main):
     """docstring for ."""
     def __init__(self, eq,rel):
-        super().__init__()
+        # super().__init__()
         self._type = "request"
         self.eq ,self.rel = eq, rel
     def validation(self, dbSchema):
@@ -126,7 +129,7 @@ class Select(Main):
                         index = table[1].index(col) #on récupere l'indice de la col
                         if(self.eq.constante.type==table[2][index]): #type consatnte == type de la colonne
                             constanteValid=True
-                            self._sorte = table[1]
+                            self._sorte = [table[1],table[2]]
                             self._structure = "SELECT * FROM {} WHERE {}".format(self.rel.table,str(self.eq))
                             self._valid = True
                             return True
@@ -140,16 +143,24 @@ class Select(Main):
         return False
 class Proj:
     """docstring for ."""
-    def __init__(self, arrayCol,fff):
+    def __init__(self, arrayCol,rel):
         # super(, self).__init__()
         self._type = "request"
         self.arrayCol = arrayCol
         self.rel = rel
     def validation(self,dbSchema):
-        for col in arrayCol:
+        for col in self.arrayCol:
             exist=False
-            # for col in rel.toRel().getDbschema():
-            print("NOT MPLEMENTED")
+            self.rel.validation(dbSchema)
+            try:
+                # si index() ne genere pas d'erreur alors la col fait partie de sorte()
+                self.rel.toRel().sorte()[0].index(col)
+                self._valid = True
+                return True
+            except Exception as e:
+                print("ERROR COL DOES NOT EXIST FOR PROJECTION")
+                return False
+                # raise
         # tmp = ""
         # for t in self.arrayCol:
         #     if( tmp != ""):

@@ -50,10 +50,11 @@ class MyTest(unittest.TestCase):
     def test_Rel(self):
         self.assertFalse(Rel('CC').validation(self.dbSchema))
         self.assertTrue(Rel('users').validation(self.dbSchema))
+        self.assertTrue(Rel('users').toRel().validation(self.dbSchema))
     def test_Select(self):
         select = Select(Eq("id",Cst(0)),Rel("users"))
         self.assertTrue(select.validation(self.dbSchema))
-        self.assertEqual(select._sorte,['id', 'name', 'age'])
+        self.assertEqual(select.sorte(),[['id', 'name', 'age'], ['INTEGER', 'TEXT', 'INTERGER']])
 
         select = Select(Eq("id",Cst(0)),Rel("us"))
         self.assertFalse(select.validation(self.dbSchema))
@@ -63,5 +64,10 @@ class MyTest(unittest.TestCase):
 
         select = Select(Eq("shitshit",Cst(0)),Rel("users"))
         self.assertFalse(select.validation(self.dbSchema))
+    def test_Projection(self):
+        proj = Proj(["id"],Rel('users'))
+        self.assertTrue(proj.validation(self.dbSchema))
+        proj = Proj(["FAKECOL"],Rel('users'))
+        self.assertFalse(proj.validation(self.dbSchema))
 if __name__ == '__main__':
     unittest.main()
