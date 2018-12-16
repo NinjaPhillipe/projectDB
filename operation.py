@@ -156,22 +156,16 @@ class Proj:
                 # si index() ne genere pas d'erreur alors la col fait partie de sorte()
                 self.rel.toRel().sorte()[0].index(col)
                 self._valid = True
-                return True
+                tmp = ""
             except Exception as e:
                 print("ERROR COL DOES NOT EXIST FOR PROJECTION")
                 return False
-                # raise
-        # tmp = ""
-        # for t in self.arrayCol:
-        #     if( tmp != ""):
-        #         tmp+=","
-        #     tmp+=t
-        # if (self.fff.type == "request"):
-        #     return "SELECT {} FROM ({})".format(str(tmp),self.fff.validation(dbSchema))
-        # elif(self.fff.type == "rel"):
-        #     return "SELECT {} FROM {}".format(str(tmp),self.fff.validation(dbSchema))
-        # else:
-        #     return """ERROR {1} is not a valid argument \n ----> SELECT {0} FROM {1}""".format(str(tmp), self.fff.validation(dbSchema))
+        for t in self.arrayCol:
+            if( tmp != ""):
+                tmp+=","
+            tmp+=t
+        self.structure = "SELECT {} FROM ({})".format(str(tmp),self.rel._structure)
+        return True
 class Join:
     """docstring for ."""
     def __init__(self, exp1,exp2):
