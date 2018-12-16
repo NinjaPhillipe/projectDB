@@ -141,25 +141,29 @@ class Select(Main):
         elif(not constanteValid):
             self._structure = "ERROR constante is not valid"
         return False
-class Proj:
+class Proj(Main):
     """docstring for ."""
     def __init__(self, arrayCol,rel):
-        # super(, self).__init__()
+        Main.__init__(self)
         self._type = "request"
         self.arrayCol = arrayCol
         self.rel = rel
     def validation(self,dbSchema):
+        type = []
         for col in self.arrayCol:
             exist=False
             self.rel.validation(dbSchema)
             try:
                 # si index() ne genere pas d'erreur alors la col fait partie de sorte()
-                self.rel.toRel().sorte()[0].index(col)
+                sorte = self.rel.toRel().sorte()
+                index = sorte[0].index(col)
+                type.append(sorte[1][index])
                 self._valid = True
                 tmp = ""
             except Exception as e:
                 print("ERROR COL DOES NOT EXIST FOR PROJECTION")
                 return False
+        self._sorte = [self.arrayCol ,type]
         for t in self.arrayCol:
             if( tmp != ""):
                 tmp+=","
