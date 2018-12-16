@@ -50,12 +50,13 @@ class MyTest(unittest.TestCase):
         proj = Proj(['FAKECOL'],Rel('users'))
         self.assertFalse(proj.validation(self.dbSchema))
     def test_Union(self):
-        union = Union(Rel("users"),Rel("users"))
+        rel1 = Rel("users")
+        union = Union(rel1,rel1)
         self.assertTrue(union.validation(self.dbSchema))
+        self.assertEqual(union.sorte(),rel1.sorte())
 
         union = Union(Select(Eq('id',Cst(0)),Rel('users')),Select(Eq('id',Cst(0)),Rel('users')))
         self.assertTrue(union.validation(self.dbSchema))
-
         ###########TEST_ERROR#################
         union = Union(Rel("users"),Rel("annuaire"))
         self.assertFalse(union.validation(self.dbSchema))
@@ -63,8 +64,10 @@ class MyTest(unittest.TestCase):
         union = Union(Select(Eq('id',Cst(0)),Rel('users')),Select(Eq('id',Cst(0)),Rel('annuaire')))
         self.assertFalse(union.validation(self.dbSchema))
     def test_Diff(self):
-        diff = Diff(Rel("users"),Rel("users"))
+        rel1 = Rel("users")
+        diff = Diff(rel1,rel1)
         self.assertTrue(diff.validation(self.dbSchema))
+        self.assertEqual(diff.sorte(),rel1.sorte())
         ###########TEST_ERROR#################
         diff = Diff(Rel("users"),Rel("annuaire"))
         self.assertFalse(diff.validation(self.dbSchema))

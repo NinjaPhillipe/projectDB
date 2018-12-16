@@ -217,8 +217,12 @@ class Union(Main):
         if(self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema)):
             if(self.exp1.sorte()==self.exp2.sorte()):
                 self._structure = "{} UNION {}".format(self.exp1.toSql(),self.exp2.toSql())
+                self._valid=True
                 return True
         return False
+    def sorte(self):
+        if(self._valid):
+            return self.exp1.sorte()
 class Diff(Main):
     """docstring for ."""
     def __init__(self, exp1,exp2):
@@ -230,5 +234,9 @@ class Diff(Main):
         if(self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema)):
             if(self.exp1.sorte()==self.exp2.sorte()):
                 self._structure = "{} MINUS {}".format(self.exp1.toSql(),self.exp2.toSql())
+                self._valid=True
                 return True
         return False
+    def sorte(self):
+        if(self._valid):
+            return self.exp1.sorte()
