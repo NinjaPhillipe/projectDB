@@ -98,6 +98,8 @@ class Rel(Main):
                 return True
         self._structure = "ERROR"
         return False
+    def toSql(self):
+        return "SELECT * FROM {}".format(self._name)
     # def getRelSchema(self,dbSchema):
     #     for table in dbSchema.getDbschema():
     #         if(table[0]==self.table):
@@ -217,12 +219,15 @@ class Union(Main):
     # def __str__(self):
     #     return "{} UNION {}".format(self.exp1.validation(dbSchema).,self.exp2.validation(dbSchema))
 
-class Diff:
+class Diff(Main):
     """docstring for ."""
     def __init__(self, exp1,exp2):
-        # super(, self).__init__()
+        Main.__init__(self)
         self._type = "diff"
         self.exp1 = exp1
         self.exp2 = exp2
     def validation(self,dbSchema):
-        return "{} EXCEPT {}".format(self.exp1.validation(dbSchema),self.exp2.validation(dbSchema))
+        if(self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema)):
+            self._structure = "{} MINUS {}".format(self.exp1.toSql(),self.exp2.toSql())
+            return True
+        return False

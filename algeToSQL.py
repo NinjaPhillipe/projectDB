@@ -49,6 +49,14 @@ class MyTest(unittest.TestCase):
         ###########TEST_ERROR#################
         proj = Proj(['FAKECOL'],Rel('users'))
         self.assertFalse(proj.validation(self.dbSchema))
+    def test_Diff(self):
+        diff = Diff(Rel("users"),Rel("annuaire"))
+        self.assertTrue(diff.validation(self.dbSchema))
+        self.assertEqual(diff.toSql(),"SELECT * FROM users MINUS SELECT * FROM annuaire")
+
+        ###########TEST_ERROR#################
+        diff = Diff(Rel("users"),Rel("ERROR"))
+        self.assertFalse(diff.validation(self.dbSchema))
     def test_Global(self):
         glob = Proj(['name'],Select(Eq('id',Cst(0)),Rel('users')))
         self.assertTrue(glob.validation(self.dbSchema))
