@@ -170,7 +170,8 @@ class Proj(Main):
                     self._structure ="ERROR COL DOES NOT EXIST FOR PROJECTION"
                     return False
         else:
-            return "ERROR SUB REQUEST"
+            self._structure = "ERROR SUB REQUEST"
+            return False
         self._sorte = [self.arrayCol ,type]
         for t in self.arrayCol:
             if( tmp != ""):
