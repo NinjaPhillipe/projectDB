@@ -103,6 +103,12 @@ class MyTest(unittest.TestCase):
         self.assertTrue(glob.validation(self.dbSchema))
         self.assertTrue(sorteEquality(glob.sorte(),[['name'],['TEXT']]))
 
+        req = Rename('name','Employee' ,Proj(['name'],Select(Eq('id',Cst(0)),Rel('users'))))
+        req2 = Select(Eq('id',Cst(0)),Rel('users'))
+        req3 = Join(req,req2)
+        self.assertTrue(req3.validation(self.dbSchema))
+        self.assertTrue(sorteEquality(req3.sorte(),[['Employee', 'id', 'name', 'age'], ['TEXT', 'INTEGER', 'TEXT', 'INTEGER']]))
+
         ###########TEST_ERROR#################
         #si la sous requete est mauvaise
         glob = Proj(['name'],Select(Eq('id',Cst('0')),Rel('users')))

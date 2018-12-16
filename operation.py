@@ -209,12 +209,14 @@ class Join(Main):
         return False
     def sorte(self):
         if(self._valid):
-            res = []
-            for col in self.exp1.sorte():
-                res.append(col)
-            for col in self.exp2.sorte(): #ajoute les col si elles ne sont pas dans res
+            res = [[],[]]
+            for col in self.exp1.sorte()[0]:
+                res[0].append(col)
+                res[1].append(self.exp1.sorte()[1][self.exp1.sorte()[0].index(col)])
+            for col in self.exp2.sorte()[0]: #ajoute les col si elles ne sont pas dans res
                 if(not col in res):
-                    res.append(col)
+                    res[0].append(col)
+                    res[1].append(self.exp2.sorte()[1][self.exp2.sorte()[0].index(col)])
             return res
 
 class Rename(Main): #incorrect
