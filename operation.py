@@ -13,7 +13,6 @@ def sorteEquality(sorte1,sorte2):
             return False # type colonne incorrect
     for col in sorte2[0]:
         if(not col in sorte1[0]):
-            print("2 :",col)
             return False
         if(not sorte1[1][sorte1[0].index(col)] == sorte2[1][sorte2[0].index(col)]):
             return False # type colonne incorrect
@@ -21,7 +20,6 @@ def sorteEquality(sorte1,sorte2):
 class DbSchema:
     """docstring for DbSchema."""
     def __init__(self):
-        # super(DbSchema, self).__init__()
         self.tab = []
     def setDataBase(self, dbname):
         self.dbname = dbname
@@ -260,9 +258,8 @@ class Union(Main):
         self.exp1 = exp1
         self.exp2 = exp2
     def validation(self,dbSchema):
-        # print(self.exp1.validation(dbSchema))
         if(self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema)):
-            if(self.exp1.sorte()==self.exp2.sorte()):
+            if(sorteEquality(self.exp1.sorte(),self.exp2.sorte())):
                 self._structure = "{} UNION {}".format(self.exp1.toSql(),self.exp2.toSql())
                 self._valid=True
                 return True
@@ -279,7 +276,7 @@ class Diff(Main):
         self.exp2 = exp2
     def validation(self,dbSchema):
         if(self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema)):
-            if(self.exp1.sorte()==self.exp2.sorte()):
+            if(sorteEquality(self.exp1.sorte(),self.exp2.sorte())):
                 self._structure = "{} MINUS {}".format(self.exp1.toSql(),self.exp2.toSql())
                 self._valid=True
                 return True
