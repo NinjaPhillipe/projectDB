@@ -196,12 +196,32 @@ class Join(Main):
 
 class Rename(Main): #incorrect
     """docstring for Rename."""
-    def __init__(self, col,newName,table):
+    def __init__(self, col,newName,rel):
         Main.__init__(self)
         self._type = "rename"
         self.col = col
         self.newName = newName
-        self.table = table
+        self.rel = rel
+    def validation(self,dbSchema):
+        if(not self.rel.validation(dbSchema)):
+            self._structure = "ERROR rel is not valid"
+            return False
+        if(not self.col in self.rel.sorte()[0]):
+            self._structure = "ERROR col is not in relation"
+            return False
+        if(self.newName in self.rel.sorte()[0]):
+            self._structure = "ERROR new name is already in relation"
+            return False
+        self._valid=True
+        return True
+    def sorte(self):
+        if(self._valid):
+            index = self.rel.sorte()[0].index(self.col)# car col est dans sorte() car la requete est valid
+            sorte=[]
+            for el in self.rel.sorte()[0]: #Deepcopy
+                sorte.append(el)
+            sorte[index] = self.newName
+            return sorte
     # def __str__(self):
     #     return "SELECT {} \"{}\" FROM {}".format(self.col,self.newName,self.table)
 

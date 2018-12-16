@@ -49,6 +49,16 @@ class MyTest(unittest.TestCase):
         ###########TEST_ERROR#################
         proj = Proj(['FAKECOL'],Rel('users'))
         self.assertFalse(proj.validation(self.dbSchema))
+    def test_Rename(self):
+        rename = Rename("id","num",Rel("users"))
+        self.assertTrue(rename.validation(self.dbSchema))
+        self.assertEqual(rename.sorte(),['num', 'name', 'age'])
+
+        ###########TEST_ERROR#################
+        rename = Rename("BLABLABLA","num",Rel("users"))
+        self.assertFalse(rename.validation(self.dbSchema))
+        rename = Rename("id","num",Rel("BLABLABLA"))
+        self.assertFalse(rename.validation(self.dbSchema))
     def test_Union(self):
         rel1 = Rel("users")
         union = Union(rel1,rel1)
