@@ -63,6 +63,7 @@ class MyTest(unittest.TestCase):
         join = Join(Rel("users"),Rel("annuaire"))
         self.assertTrue(join.validation(self.dbSchema))
         self.assertTrue(sorteEquality(join.sorte(),[['id', 'name', 'age', 'name', 'email', 'tel'], ['INTEGER', 'TEXT', 'INTEGER', 'TEXT', 'TEXT', 'TEXT']]))
+        self.assertEqual(join.toSql(),"SELECT * FROM users NATURAL JOIN (SELECT * FROM annuaire)")
 
         ###########TEST_ERROR#################
         join = Join(Cst("OKOK"),Eq(10,12))

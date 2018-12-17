@@ -156,7 +156,8 @@ class Select(Main):
         self._valid = True
         return True
     def sorte(self):
-        return self.rel.sorte()
+        if(self._valid):
+            return self.rel.sorte()
 
 class Proj(Main):
     """docstring for ."""
@@ -204,7 +205,7 @@ class Join(Main):
     def validation(self,dbSchema):
         if(self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema)):
             self._valid = True
-            self._structure = "{} FULL JOIN {}".format(self.exp1.toSql(),self.exp2.toSql())
+            self._structure = "{} NATURAL JOIN ({})".format(self.exp1.toSql(),self.exp2.toSql())
             return True
         return False
     def sorte(self):
