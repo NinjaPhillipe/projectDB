@@ -84,6 +84,7 @@ class MyTest(unittest.TestCase):
         union = Union(rel1,rel1)
         self.assertTrue(union.validation(self.dbSchema))
         self.assertTrue(sorteEquality(union.sorte(),rel1.sorte()))
+        self.assertEqual(union.toSql(),"SELECT * FROM users UNION SELECT * FROM users")
 
         union = Union(Select(Eq('id',Cst(0)),Rel('users')),Select(Eq('id',Cst(0)),Rel('users')))
         self.assertTrue(union.validation(self.dbSchema))
