@@ -125,7 +125,8 @@ class Eq:
         self.col = col
         self.constante = constante
     def validation(self,dbSchema):
-        return "{} = {}".format(self.col,self.constante.validation(dbSchema))
+        self._structure =  "{} = {}".format(self.col,self.constante.validation(dbSchema))
+        return True
     def __str__(self):
         if(self.constante.getType()=="TEXT"):
             return self.col +"=\""+str(self.constante.name)+"\""
@@ -134,32 +135,25 @@ class Eq:
 class Select(Main):
     """docstring for ."""
     def __init__(self, eq,rel):
-        # super().__init__()
-        self._type = "request"
+        Main.__init__(self)
+        self._type = "select"
         self.eq ,self.rel = eq, rel
     def validation(self, dbSchema):
-        relValid,colValid,constanteValid=False,False,False
-        for table in dbSchema.getDbschema():
-            if(table[0]==self.rel._name): #on verifie si la table existe dans la base de donnée
-                relValid=True
-                for col in table[1]:
-                    if(self.eq.col == col): #on vérifie si colone existe
-                        colValid=True
-                        index = table[1].index(col) #on récupere l'indice de la col
-                        if(self.eq.constante.getType()==table[2][index]): #type consatnte == type de la colonne
-                            constanteValid=True
-                            self._sorte = [table[1],table[2]]
-                            self._structure = "SELECT * FROM {} WHERE {}".format(self.rel._name,str(self.eq))
-                            self._valid = True
-                            return True
         #on retourne le message d'erreur en focntion de l'ordre de verification
-        if(not relValid):
-            self._structure = "ERROR table does not exist"
-        elif(not colValid):
+        if(not self.rel.validation(dbSchema)):
+            self._structure = "ERROR SUB REQUEST"
+            return False
+        if(not self.eq.col in self.rel.sorte()[0]):
             self._structure = "ERROR col does not exist"
-        elif(not constanteValid):
+            return False
+        if(not self.eq.constante.getType()== self.rel.sorte()[1][self.rel.sorte()[0].index(self.eq.col)] ):
             self._structure = "ERROR constante is not valid"
-        return False
+            return False
+        self._structure = "SELECT * FROM {} WHERE {}".format(self.rel._name,str(self.eq))
+        self._valid = True
+        return True
+    def sorte(self):
+        return self.rel.sorte()
 
 class Proj(Main):
     """docstring for ."""
