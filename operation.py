@@ -290,7 +290,7 @@ class Diff(Main):
     def validation(self,dbSchema):
         if(self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema)):
             if(sorteEquality(self.exp1.sorte(),self.exp2.sorte())):
-                self._structure = "{} MINUS {}".format(self.exp1.toSql(),self.exp2.toSql())
+                self._structure = "{} EXCEPT {}".format(self.exp1.toSql(),self.exp2.toSql())
                 self._valid=True
                 return True
         return False

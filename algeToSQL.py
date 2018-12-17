@@ -98,6 +98,7 @@ class MyTest(unittest.TestCase):
         diff = Diff(rel1,rel1)
         self.assertTrue(diff.validation(self.dbSchema))
         self.assertTrue(sorteEquality(diff.sorte(),rel1.sorte()))
+        self.assertEqual(diff.toSql(),"SELECT * FROM users EXCEPT SELECT * FROM users")
         ###########TEST_ERROR#################
         diff = Diff(Rel("users"),Rel("annuaire"))
         self.assertFalse(diff.validation(self.dbSchema))
