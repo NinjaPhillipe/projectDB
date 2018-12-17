@@ -49,12 +49,12 @@ class MyTest(unittest.TestCase):
         proj = Proj(['id'],Rel('users'))
         self.assertTrue(proj.validation(self.dbSchema))
         self.assertEqual(proj.sorte(),[['id'], ['INTEGER']])
-        self.assertEqual(proj.toSql(),"SELECT id FROM (users)")
+        self.assertEqual(proj.toSql(),"SELECT id FROM users")
 
         proj = Proj(['id','name'],Rel('users'))
         self.assertTrue(proj.validation(self.dbSchema))
         self.assertTrue(sorteEquality(proj.sorte(),[['id', 'name'], ['INTEGER', 'TEXT']]))
-        self.assertEqual(proj.toSql(),"SELECT id,name FROM (users)")
+        self.assertEqual(proj.toSql(),"SELECT id,name FROM users")
 
         ###########TEST_ERROR#################
         proj = Proj(['FAKECOL'],Rel('users'))
@@ -62,7 +62,11 @@ class MyTest(unittest.TestCase):
     def test_Join(self):
         join = Join(Rel("users"),Rel("annuaire"))
         self.assertTrue(join.validation(self.dbSchema))
-        # self.assertEqual(join.sorte(),)
+        self.assertTrue(sorteEquality(join.sorte(),[['id', 'name', 'age', 'name', 'email', 'tel'], ['INTEGER', 'TEXT', 'INTEGER', 'TEXT', 'TEXT', 'TEXT']]))
+
+        ###########TEST_ERROR#################
+        join = Join(Cst("OKOK"),Eq(10,12))
+        self.assertFalse(join.validation(self.dbSchema))
     def test_Rename(self):
         rename = Rename("id","num",Rel("users"))
         self.assertTrue(rename.validation(self.dbSchema))
@@ -102,13 +106,13 @@ class MyTest(unittest.TestCase):
         glob = Proj(['name'],Select(Eq('id',Cst(0)),Rel('users')))
         self.assertTrue(glob.validation(self.dbSchema))
         self.assertTrue(sorteEquality(glob.sorte(),[['name'],['TEXT']]))
+        self.assertEqual(glob.toSql(),"SELECT name FROM (SELECT * FROM users WHERE id=0)")
 
         req = Rename('name','Employee' ,Proj(['name'],Select(Eq('id',Cst(0)),Rel('users'))))
         req2 = Select(Eq('id',Cst(0)),Rel('users'))
         req3 = Join(req,req2)
         self.assertTrue(req3.validation(self.dbSchema))
         self.assertTrue(sorteEquality(req3.sorte(),[['Employee', 'id', 'name', 'age'], ['TEXT', 'INTEGER', 'TEXT', 'INTEGER']]))
-
         ###########TEST_ERROR#################
         #si la sous requete est mauvaise
         glob = Proj(['name'],Select(Eq('id',Cst('0')),Rel('users')))

@@ -149,7 +149,10 @@ class Select(Main):
         if(not self.eq.constante.getType()== self.rel.sorte()[1][self.rel.sorte()[0].index(self.eq.col)] ):
             self._structure = "ERROR constante is not valid"
             return False
-        self._structure = "SELECT * FROM {} WHERE {}".format(self.rel._name,str(self.eq))
+        if(self.rel.getType() == "rel"):
+            self._structure = "SELECT * FROM {} WHERE {}".format(self.rel._name,str(self.eq))
+        else:
+            self._structure = "SELECT * FROM ({}) WHERE {}".format(self.rel._name,str(self.eq))
         self._valid = True
         return True
     def sorte(self):
@@ -176,7 +179,10 @@ class Proj(Main):
                 projCol +=col
             else:
                 projCol +=",{}".format(col)
-        self._structure = "SELECT {} FROM ({})".format(projCol,self.rel._structure)
+        if(self.rel.getType() == "rel"):
+            self._structure = "SELECT {} FROM {}".format(projCol,self.rel._structure)
+        else:
+            self._structure = "SELECT {} FROM ({})".format(projCol,self.rel._structure)
         self._valid = True
         return True
     def sorte(self):
@@ -198,7 +204,7 @@ class Join(Main):
     def validation(self,dbSchema):
         if(self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema)):
             self._valid = True
-            self._structure = "NOT YEST IMPLEMENTED"
+            self._structure = "{} FULL JOIN {}".format(self.exp1.toSql,self.exp2.toSql)
             return True
         return False
     def sorte(self):
@@ -208,7 +214,7 @@ class Join(Main):
                 res[0].append(col)
                 res[1].append(self.exp1.sorte()[1][self.exp1.sorte()[0].index(col)])
             for col in self.exp2.sorte()[0]: #ajoute les col si elles ne sont pas dans res
-                if(not col in res):
+                if(not col in res[0]):
                     res[0].append(col)
                     res[1].append(self.exp2.sorte()[1][self.exp2.sorte()[0].index(col)])
             return res
@@ -231,6 +237,7 @@ class Rename(Main): #incorrect
         if(self.newName in self.rel.sorte()[0]):
             self._structure = "ERROR new name is already in relation"
             return False
+
         self._valid=True
         return True
     def sorte(self):
