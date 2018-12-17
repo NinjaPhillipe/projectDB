@@ -71,6 +71,7 @@ class MyTest(unittest.TestCase):
         rename = Rename("id","num",Rel("users"))
         self.assertTrue(rename.validation(self.dbSchema))
         self.assertTrue(sorteEquality(rename.sorte(),[['num', 'name', 'age'],['INTEGER','TEXT','INTEGER']]))
+        self.assertTrue(sorteEquality(rename.toSql(),"SELECT id \"num\", name, age FROM users"))
 
         ###########TEST_ERROR#################
         rename = Rename("BLABLABLA","num",Rel("users"))

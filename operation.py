@@ -204,7 +204,7 @@ class Join(Main):
     def validation(self,dbSchema):
         if(self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema)):
             self._valid = True
-            self._structure = "{} FULL JOIN {}".format(self.exp1.toSql,self.exp2.toSql)
+            self._structure = "{} FULL JOIN {}".format(self.exp1.toSql(),self.exp2.toSql())
             return True
         return False
     def sorte(self):
@@ -237,7 +237,17 @@ class Rename(Main): #incorrect
         if(self.newName in self.rel.sorte()[0]):
             self._structure = "ERROR new name is already in relation"
             return False
-
+        colTmp=""
+        for col in self.rel.sorte()[0]:
+            if(col == self.col):
+                colTmp+="{} \"{}\", ".format(col,self.newName)
+            else:
+                colTmp+=str(col+", ")
+        colTmp = colTmp[:-2]
+        if(self.rel.getType()=="rel"):
+            self._structure = "SELECT {} FROM {}".format(colTmp,self.rel._name)
+        else:
+            self._structure = "SELECT {} FROM ({})".format(colTmp,self.rel.toSql())
         self._valid=True
         return True
     def sorte(self):
