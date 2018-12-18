@@ -117,6 +117,11 @@ class MyTest(unittest.TestCase):
         req3 = Join(req,req2)
         self.assertTrue(req3.validation(self.dbSchema))
         self.assertTrue(sorteEquality(req3.sorte(),[['Employee', 'id', 'name', 'age'], ['TEXT', 'INTEGER', 'TEXT', 'INTEGER']]))
+
+        glob= Select(Eq("id",Cst(0)),Proj(["name","id"],Rel("users")))
+        self.assertTrue(glob.validation(self.dbSchema))
+        self.assertTrue(sorteEquality(glob.sorte(),[['name', 'id'], ['TEXT', 'INTEGER']]))
+        self.assertEqual(glob.toSql(),"SELECT * FROM (SELECT name,id FROM users) WHERE id=0")
         ###########TEST_ERROR#################
         #si la sous requete est mauvaise
         glob = Proj(['name'],Select(Eq('id',Cst('0')),Rel('users')))

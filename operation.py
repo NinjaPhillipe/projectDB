@@ -143,16 +143,16 @@ class Select(Main):
         if(not self.rel.validation(dbSchema)):
             self._structure = "ERROR SUB REQUEST"
             return False
-        if(not self.eq.col in self.rel.sorte()[0]):
+        if(not self.eq.col in self.rel.sorte()[0]): # si la colonne n'est pas dans le schema
             self._structure = "ERROR col does not exist"
             return False
-        if(not self.eq.constante.getType()== self.rel.sorte()[1][self.rel.sorte()[0].index(self.eq.col)] ):
+        if(not self.eq.constante.getType()== self.rel.sorte()[1][self.rel.sorte()[0].index(self.eq.col)] ): # si le type de la colonne n'est pas egale au type de la constante
             self._structure = "ERROR constante is not valid"
             return False
         if(self.rel.getType() == "rel"):
             self._structure = "SELECT * FROM {} WHERE {}".format(self.rel._name,str(self.eq))
         else:
-            self._structure = "SELECT * FROM ({}) WHERE {}".format(self.rel._name,str(self.eq))
+            self._structure = "SELECT * FROM ({}) WHERE {}".format(self.rel.toSql(),str(self.eq))
         self._valid = True
         return True
     def sorte(self):
