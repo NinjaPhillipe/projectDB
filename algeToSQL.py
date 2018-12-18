@@ -90,10 +90,14 @@ class MyTest(unittest.TestCase):
         self.assertTrue(union.validation(self.dbSchema))
         ###########TEST_ERROR#################
         union = Union(Rel("users"),Rel("annuaire"))
-        self.assertFalse(union.validation(self.dbSchema))
+        with self.assertRaises(Exception) as context:
+            union.validation(self.dbSchema)
+        self.assertTrue("Error row are not the same" in str(context.exception))
 
         union = Union(Select(Eq('id',Cst(0)),Rel('users')),Select(Eq('id',Cst(0)),Rel('annuaire')))
-        self.assertFalse(union.validation(self.dbSchema))
+        with self.assertRaises(Exception) as context:
+            union.validation(self.dbSchema)
+        self.assertTrue("Error row are not the same" in str(context.exception))
     def test_Diff(self):
         rel1 = Rel("users")
         diff = Diff(rel1,rel1)

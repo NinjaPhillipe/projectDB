@@ -17,15 +17,26 @@ def sorteEquality(sorte1,sorte2):
         if(not sorte1[1][sorte1[0].index(col)] == sorte2[1][sorte2[0].index(col)]):
             return False # type colonne incorrect
     return True
+class SpjrudToSqlException(Exception):
+    """docstring for SpjrudToSql."""
+    def __init__(self, arg):
+        # super(SpjrudToSql, self).__init__()
+        print(arg)
+
 class DbSchema:
     """docstring for DbSchema."""
     def __init__(self):
         self.tab = []
+        self.trueDB=False
     def setDataBase(self, dbname):
         self.dbname = dbname
-        self.db = sqlite3.connect(self.dbname)
-        for table in self.getTables():
-            self.getColInfo(table)
+        try:
+            self.db = sqlite3.connect(self.dbname)
+            for table in self.getTables():
+                self.getColInfo(table)
+            self.trueDB = True
+        except Exception as e:
+            raise e
     def getDbschema(self):
         return self.tab
     def getTables(self):
@@ -45,6 +56,19 @@ class DbSchema:
             colName.append(col[1])
             colType.append(col[2])
         self.tab.append([table,colName,colType])
+    def execute(self,query):
+        if(not self.trueDB):
+            print("NOT TRUE DB")
+            return False
+        if(not query.validation(self)):
+            print("Query is not valid : ")
+            return False
+        cur = self.db.cursor()
+        cur.execute(query.toSql())
+        rows = cur.fetchall()
+        for row in rows:
+            print(row)
+        return True
     def __str__(self):
         #format [table, colonoe, type]
         return str(self.tab)
@@ -52,7 +76,8 @@ class DbSchema:
 class Main:
     """docstring for main."""
     def __init__(self):
-        self._structure="CRITICALERROR"
+        self._structure=None
+        self._error=None
         self._valid=False
         self._type="UNVALIDTYPE"
         self._sorte = None
@@ -61,7 +86,8 @@ class Main:
     def sorte(self):
         return self._sorte
     def toSql(self):
-        return self._structure
+        if(self._valid):
+            return self._structure
     def getType(self):
         return self._type
 
@@ -144,10 +170,10 @@ class Select(Main):
             self._structure = "ERROR SUB REQUEST"
             return False
         if(not self.eq.col in self.rel.sorte()[0]): # si la colonne n'est pas dans le schema
-            self._structure = "ERROR col does not exist"
+            raise SpjrudToSqlException("ERROR col does not exist")
             return False
         if(not self.eq.constante.getType()== self.rel.sorte()[1][self.rel.sorte()[0].index(self.eq.col)] ): # si le type de la colonne n'est pas egale au type de la constante
-            self._structure = "ERROR constante is not valid"
+            raise SpjrudToSqlException("ERROR constante is not valid")
             return False
         if(self.rel.getType() == "rel"):
             self._structure = "SELECT * FROM {} WHERE {}".format(self.rel._name,str(self.eq))
@@ -169,12 +195,12 @@ class Proj(Main):
     def validation(self,dbSchema):
         type = []
         if(not self.rel.validation(dbSchema)):
-            self._structure = "ERROR SUB REQUEST"
+            self._structure ="ERROR SUB REQUEST"
             return False
         projCol=""
         for col in self.arrayCol:
             if(not col in self.rel.sorte()[0]):
-                self._structure ="ERROR COL DOES NOT EXIST FOR PROJECTION"
+                raise SpjrudToSqlException("ERROR COL DOES NOT EXIST FOR PROJECTION")
                 return False
             if(projCol==""):
                 projCol +=col
@@ -233,10 +259,10 @@ class Rename(Main): #incorrect
             self._structure = "ERROR rel is not valid"
             return False
         if(not self.col in self.rel.sorte()[0]):
-            self._structure = "ERROR col is not in relation"
+            raise SpjrudToSqlException("ERROR col is not in relation")
             return False
         if(self.newName in self.rel.sorte()[0]):
-            self._structure = "ERROR new name is already in relation"
+            raise SpjrudToSqlException("ERROR new name is already in relation")
             return False
         colTmp=""
         for col in self.rel.sorte()[0]:
@@ -272,10 +298,12 @@ class Union(Main):
         self.exp2 = exp2
     def validation(self,dbSchema):
         if(self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema)):
-            if(sorteEquality(self.exp1.sorte(),self.exp2.sorte())):
-                self._structure = "{} UNION {}".format(self.exp1.toSql(),self.exp2.toSql())
-                self._valid=True
-                return True
+            if(not sorteEquality(self.exp1.sorte(),self.exp2.sorte())):
+                raise SpjrudToSqlException("Error row are not the same")
+                return False
+            self._structure = "{} UNION {}".format(self.exp1.toSql(),self.exp2.toSql())
+            self._valid=True
+            return True
         return False
     def sorte(self):
         if(self._valid):
