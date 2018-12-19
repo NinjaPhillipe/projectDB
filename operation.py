@@ -21,7 +21,8 @@ class SpjrudToSqlException(Exception):
     """docstring for SpjrudToSql."""
     def __init__(self, arg):
         # super(SpjrudToSql, self).__init__()
-        print(arg)
+        # print(arg)
+        pass
 
 class DbSchema:
     """docstring for DbSchema."""
@@ -86,8 +87,7 @@ class Main:
     def sorte(self):
         return self._sorte
     def toSql(self):
-        if(self._valid):
-            return self._structure
+        return self._structure
     def getType(self):
         return self._type
 
@@ -135,7 +135,7 @@ class Rel(Main):
                 self._valid = True
                 self._sorte = [table[1],table[2]]
                 return True
-        self._structure = "ERROR"
+        raise SpjrudToSqlException("\n ERROR: table {0} does not exist in Rel(\"{0}\")".format(self._name))
         return False
     def toSql(self):
         return "SELECT * FROM {}".format(self._name)
@@ -170,10 +170,10 @@ class Select(Main):
             self._structure = "ERROR SUB REQUEST"
             return False
         if(not self.eq.col in self.rel.sorte()[0]): # si la colonne n'est pas dans le schema
-            raise SpjrudToSqlException("ERROR col does not exist")
+            raise SpjrudToSqlException("ERROR: col {} does not exist in {}".format(self.eq.col,self.rel.sorte()))
             return False
         if(not self.eq.constante.getType()== self.rel.sorte()[1][self.rel.sorte()[0].index(self.eq.col)] ): # si le type de la colonne n'est pas egale au type de la constante
-            raise SpjrudToSqlException("ERROR constante is not valid")
+            raise SpjrudToSqlException("ok")
             return False
         if(self.rel.getType() == "rel"):
             self._structure = "SELECT * FROM {} WHERE {}".format(self.rel._name,str(self.eq))
@@ -316,12 +316,12 @@ class Diff(Main):
         self.exp1 = exp1
         self.exp2 = exp2
     def validation(self,dbSchema):
-        if(self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema)):
-            if(sorteEquality(self.exp1.sorte(),self.exp2.sorte())):
-                self._structure = "{} EXCEPT {}".format(self.exp1.toSql(),self.exp2.toSql())
-                self._valid=True
-                return True
-        return False
+        if(not (self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema))):
+            print("error")
+        if(sorteEquality(self.exp1.sorte(),self.exp2.sorte())):
+            self._structure = "{} EXCEPT {}".format(self.exp1.toSql(),self.exp2.toSql())
+            self._valid=True
+            return True
     def sorte(self):
         if(self._valid):
             return self.exp1.sorte()

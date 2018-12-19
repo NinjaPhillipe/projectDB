@@ -8,11 +8,9 @@ dbSchema.setDataBase("my_db.db")
 
 # print(dbSchema.getDbschema())
 
-req=Select(Eq("age",Cst(25)),Rel("users")) ### ERROR
-# req=Rel("users")
-test=Cst(25)
+req= Proj(['name'],Select(Eq('id',Cst(1)),Rel('users')))
 
-print(req.validation(dbSchema))
-print(req.toSql())
-
-dbSchema.execute(req)
+# print(req.validation(dbSchema))
+# print(req.toSql())
+# print(req.sorte())
+dbSchema.execute( Proj(['name',"age"],Select(Eq('id',Cst(1)),Rel('users'))))
