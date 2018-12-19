@@ -91,7 +91,7 @@ class Main:
     def getType(self):
         return self._type
 
-class Cst(Main):
+class Cst:
     """Objet representant une constante"""
     def __init__(self, name):
         # super().__init__()
@@ -113,6 +113,8 @@ class Cst(Main):
         # if (self.name.isdigit()):
         #     return "{}".format(self.name)
         # return "\"{}\"".format(self.name)
+    def getType(self):
+        return self._type
 
 class Rel(Main):
     """Objet representant une table"""
@@ -154,7 +156,9 @@ class Eq:
         self._structure =  "{} = {}".format(self.col,self.constante.validation(dbSchema))
         return True
     def __str__(self):
-        if(self.constante.getType()=="TEXT"):
+        if(type(self.constante)==str):
+            return self.col +"="+str(self.constante)
+        elif(self.constante.getType()=="TEXT"):
             return self.col +"=\""+str(self.constante.name)+"\""
         else:
             return self.col +"="+str(self.constante.name)
@@ -172,9 +176,15 @@ class Select(Main):
         if(not self.eq.col in self.rel.sorte()[0]): # si la colonne n'est pas dans le schema
             raise SpjrudToSqlException("ERROR: col {} does not exist in {}".format(self.eq.col,self.rel.sorte()))
             return False
-        if(not self.eq.constante.getType()== self.rel.sorte()[1][self.rel.sorte()[0].index(self.eq.col)] ): # si le type de la colonne n'est pas egale au type de la constante
-            raise SpjrudToSqlException("ok")
-            return False
+        if(type(self.eq.constante)==Cst): #si c'est une constante
+            if(not self.eq.constante.getType()== self.rel.sorte()[1][self.rel.sorte()[0].index(self.eq.col)] ): # si le type de la colonne n'est pas egale au type de la constante
+                raise SpjrudToSqlException("ok")
+                return False
+        else: # sinon c'est une colonne
+            if(not self.eq.constante in self.rel.sorte()[0]): #si la colonne n'est pas dans le schema
+                raise SpjrudToSqlException("ERROR")
+            if(not self.rel.sorte()[1][self.rel.sorte()[0].index(self.eq.constante)]== self.rel.sorte()[1][self.rel.sorte()[0].index(self.eq.col)] ): # si les types des colonnes ne sont pas egaux
+                raise SpjrudToSqlException("ERROR")
         if(self.rel.getType() == "rel"):
             self._structure = "SELECT * FROM {} WHERE {}".format(self.rel._name,str(self.eq))
         else:
