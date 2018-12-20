@@ -70,6 +70,17 @@ class DbSchema:
         for row in rows:
             print(row)
         return True
+    def createTable(self,name,query):
+        if(not self.trueDB):
+            print("NOT TRUE DB")
+            return False
+        if(not query.validation(self)):
+            print("Query is not valid : ")
+            return False
+        cur = self.db.cursor()
+        cur.execute("CREATE TABLE {} AS {}".format(name,query.toSql()))
+        rows = cur.fetchall()
+
     def __str__(self):
         #format [table, colonoe, type]
         return str(self.tab)
@@ -170,16 +181,14 @@ class Select(Main):
         self.eq ,self.rel = eq, rel
     def validation(self, dbSchema):
         #on retourne le message d'erreur en focntion de l'ordre de verification
-        if(not self.rel.validation(dbSchema)):
+        if(not self.rel.validation(dbSchema)): #la recursivité va tomber sur l'erreur et la raise
             self._structure = "ERROR SUB REQUEST"
-            return False
+            return False # On a un return false par sécurité
         if(not self.eq.col in self.rel.sorte()[0]): # si la colonne n'est pas dans le schema
             raise SpjrudToSqlException("ERROR: col {} does not exist in {}".format(self.eq.col,self.rel.sorte()))
-            return False
         if(type(self.eq.constante)==Cst): #si c'est une constante
             if(not self.eq.constante.getType()== self.rel.sorte()[1][self.rel.sorte()[0].index(self.eq.col)] ): # si le type de la colonne n'est pas egale au type de la constante
                 raise SpjrudToSqlException("ok")
-                return False
         else: # sinon c'est une colonne
             if(not self.eq.constante in self.rel.sorte()[0]): #si la colonne n'est pas dans le schema
                 raise SpjrudToSqlException("ERROR")
