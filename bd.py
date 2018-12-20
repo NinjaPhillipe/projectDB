@@ -5,12 +5,11 @@ from operation import *
 
 dbSchema = DbSchema()
 dbSchema.setDataBase("my_db.db")
+# select * from job union select id,job_name,sal from (job_hiver);
 
-# print(dbSchema.getDbschema())
-
-req= Proj(['name'],Select(Eq('id',Cst(1)),Rel('users')))
+print(dbSchema.getDbschema())
 
 # print(req.validation(dbSchema))
 # print(req.toSql())
 # print(req.sorte())
-dbSchema.execute( Proj(['name',"age"],Select(Eq('id','age'),Rel('users'))))
+dbSchema.execute( Union(Rel("job"),Rel("job_hiver")) )

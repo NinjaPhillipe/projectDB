@@ -311,7 +311,16 @@ class Union(Main):
             if(not sorteEquality(self.exp1.sorte(),self.exp2.sorte())):
                 raise SpjrudToSqlException("Error row are not the same")
                 return False
-            self._structure = "{} UNION {}".format(self.exp1.toSql(),self.exp2.toSql())
+            unionCol=""
+            for col in self.exp1.sorte()[0]:
+                if(unionCol==""):
+                    unionCol +=col
+                else:
+                    unionCol +=",{}".format(col)
+            if(self.exp2.getType() == "rel"):
+                self._structure = "{} UNION SELECT {} FROM {}".format(self.exp1.toSql(),unionCol,self.exp2._name)
+            else:
+                self._structure = "{} UNION SELECT {} FROM ({})".format(self.exp1.toSql(),unionCol,self.exp2.toSql())
             self._valid=True
             return True
         return False

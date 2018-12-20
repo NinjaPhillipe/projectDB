@@ -3,12 +3,12 @@ from operation import *
 
 class MyTest(unittest.TestCase):
     dbSchema = DbSchema()
-    dbSchema.tab = [['users', ['id', 'name', 'age'], ['INTEGER', 'TEXT', 'INTEGER']], ['annuaire', ['id', 'name', 'email', 'tel'], ['INTEGER', 'TEXT', 'TEXT', 'TEXT']]]
+    dbSchema.tab = [['users', ['id', 'firstname', 'age'], ['INTEGER', 'TEXT', 'INTEGER']], ['annuaire', ['id', 'firstname', 'email', 'tel'], ['INTEGER', 'TEXT', 'TEXT', 'TEXT']]]
     def test_sorteEquality(self):
-        self.assertTrue(sorteEquality([['id', 'name', 'age'], ['INTEGER', 'TEXT', 'INTEGER']],[['id', 'name', 'age'], ['INTEGER', 'TEXT', 'INTEGER']]))
+        self.assertTrue(sorteEquality([['id', 'firstname', 'age'], ['INTEGER', 'TEXT', 'INTEGER']],[['id', 'firstname', 'age'], ['INTEGER', 'TEXT', 'INTEGER']]))
 
         ###########TEST_ERROR#################
-        self.assertFalse(sorteEquality([['id'], ['INTEGER']],[['id', 'name', 'age'], ['INTEGER', 'TEXT', 'INTEGER']]))
+        self.assertFalse(sorteEquality([['id'], ['INTEGER']],[['id', 'firstname', 'age'], ['INTEGER', 'TEXT', 'INTEGER']]))
         self.assertFalse(sorteEquality([['id'], ['TEXT']],[['id'], ['INTEGER']]))
         self.assertFalse(sorteEquality([['id1'], ['INTEGER']],[['id'], ['INTEGER']]))
     def test_Cst(self):
@@ -20,20 +20,20 @@ class MyTest(unittest.TestCase):
         self.assertTrue(Rel('users').validation(self.dbSchema))
         rel = Rel("users")
         rel.validation(self.dbSchema)
-        self.assertTrue(sorteEquality(rel.sorte(),[['id', 'name', 'age'], ['INTEGER', 'TEXT', 'INTEGER']]))
+        self.assertTrue(sorteEquality(rel.sorte(),[['id', 'firstname', 'age'], ['INTEGER', 'TEXT', 'INTEGER']]))
         ###########TEST_ERROR#################
         self.assertRaises(SpjrudToSqlException,lambda:Rel("CC").validation(self.dbSchema))
     def test_Select(self):
         #projection sur une colonne
         select = Select(Eq('id',Cst(0)),Rel('users'))
         self.assertTrue(select.validation(self.dbSchema))
-        self.assertTrue(sorteEquality(select.sorte(),[['id', 'name', 'age'], ['INTEGER', 'TEXT', 'INTEGER']]))
+        self.assertTrue(sorteEquality(select.sorte(),[['id', 'firstname', 'age'], ['INTEGER', 'TEXT', 'INTEGER']]))
         self.assertEqual(select.toSql(),"SELECT * FROM users WHERE id=0")
         #projection sur plusieurs colonne
-        select = Select(Eq('name',Cst("Pierre")),Rel('users'))
+        select = Select(Eq('firstname',Cst("Pierre")),Rel('users'))
         self.assertTrue(select.validation(self.dbSchema))
-        self.assertTrue(sorteEquality(select.sorte(),[['id', 'name', 'age'], ['INTEGER', 'TEXT', 'INTEGER']]))
-        self.assertEqual(select.toSql(),"SELECT * FROM users WHERE name=\"Pierre\"")
+        self.assertTrue(sorteEquality(select.sorte(),[['id', 'firstname', 'age'], ['INTEGER', 'TEXT', 'INTEGER']]))
+        self.assertEqual(select.toSql(),"SELECT * FROM users WHERE firstname=\"Pierre\"")
 
 
         ###########TEST_ERROR#################
@@ -50,10 +50,10 @@ class MyTest(unittest.TestCase):
         self.assertEqual(proj.sorte(),[['id'], ['INTEGER']])
         self.assertEqual(proj.toSql(),"SELECT id FROM users")
 
-        proj = Proj(['id','name'],Rel('users'))
+        proj = Proj(['id','firstname'],Rel('users'))
         self.assertTrue(proj.validation(self.dbSchema))
-        self.assertTrue(sorteEquality(proj.sorte(),[['id', 'name'], ['INTEGER', 'TEXT']]))
-        self.assertEqual(proj.toSql(),"SELECT id,name FROM users")
+        self.assertTrue(sorteEquality(proj.sorte(),[['id', 'firstname'], ['INTEGER', 'TEXT']]))
+        self.assertEqual(proj.toSql(),"SELECT id,firstname FROM users")
 
         ###########TEST_ERROR#################
         proj = Proj(['FAKECOL'],Rel('users'))
@@ -61,7 +61,7 @@ class MyTest(unittest.TestCase):
     def test_Join(self):
         join = Join(Rel("users"),Rel("annuaire"))
         self.assertTrue(join.validation(self.dbSchema))
-        self.assertTrue(sorteEquality(join.sorte(),[['id', 'name', 'age', 'name', 'email', 'tel'], ['INTEGER', 'TEXT', 'INTEGER', 'TEXT', 'TEXT', 'TEXT']]))
+        self.assertTrue(sorteEquality(join.sorte(),[['id', 'firstname', 'age', 'firstname', 'email', 'tel'], ['INTEGER', 'TEXT', 'INTEGER', 'TEXT', 'TEXT', 'TEXT']]))
         self.assertEqual(join.toSql(),"SELECT * FROM users NATURAL JOIN (SELECT * FROM annuaire)")
 
         ###########TEST_ERROR#################
@@ -70,8 +70,8 @@ class MyTest(unittest.TestCase):
     def test_Rename(self):
         rename = Rename("id","num",Rel("users"))
         self.assertTrue(rename.validation(self.dbSchema))
-        self.assertTrue(sorteEquality(rename.sorte(),[['num', 'name', 'age'],['INTEGER','TEXT','INTEGER']]))
-        self.assertTrue(sorteEquality(rename.toSql(),"SELECT id \"num\", name, age FROM users"))
+        self.assertTrue(sorteEquality(rename.sorte(),[['num', 'firstname', 'age'],['INTEGER','TEXT','INTEGER']]))
+        self.assertTrue(sorteEquality(rename.toSql(),"SELECT id \"num\", firstname, age FROM users"))
 
         ###########TEST_ERROR#################
         rename = Rename("BLABLABLA","num",Rel("users"))
@@ -83,7 +83,7 @@ class MyTest(unittest.TestCase):
         union = Union(rel1,rel1)
         self.assertTrue(union.validation(self.dbSchema))
         self.assertTrue(sorteEquality(union.sorte(),rel1.sorte()))
-        self.assertEqual(union.toSql(),"SELECT * FROM users UNION SELECT * FROM users")
+        self.assertEqual(union.toSql(),"SELECT * FROM users UNION SELECT id,firstname,age FROM users")
 
         union = Union(Select(Eq('id',Cst(0)),Rel('users')),Select(Eq('id',Cst(0)),Rel('users')))
         self.assertTrue(union.validation(self.dbSchema))
@@ -106,30 +106,29 @@ class MyTest(unittest.TestCase):
         ###########TEST_ERROR#################
         diff = Diff(Rel("users"),Rel("annuaire"))
         print(diff.validation(self.dbSchema))
-        # FIX IT PLEASE
         # self.assertRaises(SpjrudToSqlException,lambda:diff.validation(self.dbSchema))
 
         diff = Diff(Rel("users"),Rel("ERROR"))
         self.assertRaises(SpjrudToSqlException,lambda:diff.validation(self.dbSchema))
     def test_Global(self):
-        glob = Proj(['name'],Select(Eq('id',Cst(0)),Rel('users')))
+        glob = Proj(['firstname'],Select(Eq('id',Cst(0)),Rel('users')))
         self.assertTrue(glob.validation(self.dbSchema))
-        self.assertTrue(sorteEquality(glob.sorte(),[['name'],['TEXT']]))
-        self.assertEqual(glob.toSql(),"SELECT name FROM (SELECT * FROM users WHERE id=0)")
+        self.assertTrue(sorteEquality(glob.sorte(),[['firstname'],['TEXT']]))
+        self.assertEqual(glob.toSql(),"SELECT firstname FROM (SELECT * FROM users WHERE id=0)")
 
-        req = Rename('name','Employee' ,Proj(['name'],Select(Eq('id',Cst(0)),Rel('users'))))
+        req = Rename('firstname','Employee' ,Proj(['firstname'],Select(Eq('id',Cst(0)),Rel('users'))))
         req2 = Select(Eq('id',Cst(0)),Rel('users'))
         req3 = Join(req,req2)
         self.assertTrue(req3.validation(self.dbSchema))
-        self.assertTrue(sorteEquality(req3.sorte(),[['Employee', 'id', 'name', 'age'], ['TEXT', 'INTEGER', 'TEXT', 'INTEGER']]))
+        self.assertTrue(sorteEquality(req3.sorte(),[['Employee', 'id', 'firstname', 'age'], ['TEXT', 'INTEGER', 'TEXT', 'INTEGER']]))
 
-        glob= Select(Eq("id",Cst(0)),Proj(["name","id"],Rel("users")))
+        glob= Select(Eq("id",Cst(0)),Proj(["firstname","id"],Rel("users")))
         self.assertTrue(glob.validation(self.dbSchema))
-        self.assertTrue(sorteEquality(glob.sorte(),[['name', 'id'], ['TEXT', 'INTEGER']]))
-        self.assertEqual(glob.toSql(),"SELECT * FROM (SELECT name,id FROM users) WHERE id=0")
+        self.assertTrue(sorteEquality(glob.sorte(),[['firstname', 'id'], ['TEXT', 'INTEGER']]))
+        self.assertEqual(glob.toSql(),"SELECT * FROM (SELECT firstname,id FROM users) WHERE id=0")
         ###########TEST_ERROR#################
         #si la sous requete est mauvaise
-        glob = Proj(['name'],Select(Eq('id',Cst('0')),Rel('users')))
+        glob = Proj(['firstname'],Select(Eq('id',Cst('0')),Rel('users')))
         self.assertRaises(SpjrudToSqlException,lambda:glob.validation(self.dbSchema))
 if __name__ == '__main__':
     unittest.main()
