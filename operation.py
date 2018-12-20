@@ -338,7 +338,16 @@ class Diff(Main):
         if(not (self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema))):
             print("error")
         if(sorteEquality(self.exp1.sorte(),self.exp2.sorte())):
-            self._structure = "{} EXCEPT {}".format(self.exp1.toSql(),self.exp2.toSql())
+            exceptCol=""
+            for col in self.exp1.sorte()[0]:
+                if(exceptCol==""):
+                    exceptCol +=col
+                else:
+                    exceptCol +=",{}".format(col)
+            if(self.exp2.getType() == "rel"):
+                self._structure = "{} EXCEPT SELECT {} FROM {}".format(self.exp1.toSql(),exceptCol,self.exp2._name)
+            else:
+                self._structure = "{} EXCEPT SELECT {} FROM ({})".format(self.exp1.toSql(),exceptCol,self.exp2.toSql())
             self._valid=True
             return True
     def sorte(self):

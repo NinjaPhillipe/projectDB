@@ -12,4 +12,5 @@ print(dbSchema.getDbschema())
 # print(req.validation(dbSchema))
 # print(req.toSql())
 # print(req.sorte())
-dbSchema.execute( Union(Rel("job"),Rel("job_hiver")) )
+# dbSchema.execute( Union(Rel("job"),Rel("job_hiver")) ) # a mettre dans test unitaire
+dbSchema.execute(Diff(Rel("job"),Rel("job_hiver")) )
