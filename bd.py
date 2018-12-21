@@ -30,4 +30,4 @@ exp = Select(Eq('firstname',Cst('Jean')),Rel('users')) + Select(Eq('firstname',C
 
 dbSchema.execute(exp,True)
 
-dbSchema.execute(Select(Eq("id","firstname"),Rel("users")))
+dbSchema.execute(Diff(Rel("annuaire"),Rel("users")))

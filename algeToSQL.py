@@ -74,8 +74,8 @@ class MyTest(unittest.TestCase):
         self.assertEqual(join.toSql(),"SELECT * FROM (SELECT * FROM users) NATURAL JOIN (SELECT * FROM annuaire)")
 
         ###########TEST_ERROR#################
-        join = Join(Cst("OKOK"),Eq(10,12))
-        self.assertFalse(join.validation(self.dbSchema))
+        join = Join(Rel("ddd"),Rel("oooo"))
+        self.assertRaises(SpjrudToSqlException,lambda:join.validation(self.dbSchema))
     def test_Rename(self):
         rename = Rename("id","num",Rel("users"))
         self.assertTrue(rename.validation(self.dbSchema))
@@ -102,14 +102,10 @@ class MyTest(unittest.TestCase):
         self.assertEqual(union.toSql(),"SELECT * FROM (SELECT * FROM job) UNION SELECT id,job_name,sal FROM job_hiver" )
         ###########TEST_ERROR#################
         union = Union(Rel("users"),Rel("annuaire"))
-        with self.assertRaises(Exception) as context:
-            union.validation(self.dbSchema)
-        self.assertTrue("Error row are not the same" in str(context.exception))
+        self.assertRaises(SpjrudToSqlException,lambda:union.validation(self.dbSchema))
 
         union = Union(Select(Eq('id',Cst(0)),Rel('users')),Select(Eq('id',Cst(0)),Rel('annuaire')))
-        with self.assertRaises(Exception) as context:
-            union.validation(self.dbSchema)
-        self.assertTrue("Error row are not the same" in str(context.exception))
+        self.assertRaises(SpjrudToSqlException,lambda:union.validation(self.dbSchema))
     def test_Diff(self):
         rel1 = Rel("users")
         diff = Diff(rel1,rel1)
@@ -122,8 +118,7 @@ class MyTest(unittest.TestCase):
 
         ###########TEST_ERROR#################
         diff = Diff(Rel("users"),Rel("annuaire"))
-        print(diff.validation(self.dbSchema))
-        # self.assertRaises(SpjrudToSqlException,lambda:diff.validation(self.dbSchema))
+        self.assertRaises(SpjrudToSqlException,lambda:diff.validation(self.dbSchema))
 
         diff = Diff(Rel("users"),Rel("ERROR"))
         self.assertRaises(SpjrudToSqlException,lambda:diff.validation(self.dbSchema))

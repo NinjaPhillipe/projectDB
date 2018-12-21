@@ -113,12 +113,9 @@ class Cst:
             self._valid=True
             self._type="TEXT"
         else :
-            return 'ERROR'
+            raise SpjrudToSqlException("Invalid type or not support by this prog")
     def validation(self, dbSchema):
-        pass
-        # if (self.name.isdigit()):
-        #     return "{}".format(self.name)
-        # return "\"{}\"".format(self.name)
+        return true
     def getType(self):
         return self._type
 
@@ -144,10 +141,6 @@ class Rel(Main):
         return "SELECT * FROM {}".format(self._name)
     def getSPJRUD(self):
         return str(self._name)
-    # def getRelSchema(self,dbSchema):
-    #     for table in dbSchema.getDbschema():
-    #         if(table[0]==self.table):
-    #             return tableT
 
 class Eq:
     """Objet representant une egalité"""
@@ -178,8 +171,7 @@ class Select(Main):
     def validation(self, dbSchema):
         #on retourne le message d'erreur en focntion de l'ordre de verification
         if(not self.rel.validation(dbSchema)): #la recursivité va tomber sur l'erreur et la raise
-            self._structure = "ERROR SUB REQUEST"
-            return False # On a un return false par sécurité
+            return "ERROR SUB REQUEST" # On a un return par sécurité
         if(not self.eq.col in self.rel.sorte()[0]): # si la colonne n'est pas dans le schema
             raise SpjrudToSqlException("ERROR in {} \n col {} does not exist in {}".format(self.getSPJRUD(),self.eq.col,self.rel.sorte()))
         if(type(self.eq.constante)==Cst): #si c'est une constante
@@ -212,12 +204,11 @@ class Proj(Main):
     def validation(self,dbSchema):
         type = []
         if(not self.rel.validation(dbSchema)):
-            self._structure ="ERROR SUB REQUEST"
-            return False
+            return "ERROR SUB REQUEST"
         projCol=""
         for col in self.arrayCol:
             if(not col in self.rel.sorte()[0]):
-                raise SpjrudToSqlException("ERROR COL DOES NOT EXIST FOR PROJECTION")
+                raise SpjrudToSqlException("ERROR in {} \n column {} does not exist in {}".format(self.getSPJRUD(),col,self.rel.sorte()[0]))
                 return False
             if(projCol==""):
                 projCol +=col
@@ -239,7 +230,6 @@ class Proj(Main):
     def getSPJRUD(self):
         return "Proj({},{})".format(self.arrayCol,self.rel.getSPJRUD())
 
-
 class Join(Main):
     """docstring for ."""
     def __init__(self, exp1,exp2):
@@ -248,11 +238,11 @@ class Join(Main):
         self.exp1 = exp1
         self.exp2 = exp2
     def validation(self,dbSchema):
-        if(self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema)):
-            self._valid = True
-            self._structure = "SELECT * FROM ({}) NATURAL JOIN ({})".format(self.exp1.toSql(),self.exp2.toSql())
-            return True
-        return False
+        if(not (self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema))):
+            return "ERROR SUB REQUEST"
+        self._valid = True
+        self._structure = "SELECT * FROM ({}) NATURAL JOIN ({})".format(self.exp1.toSql(),self.exp2.toSql())
+        return True
     def sorte(self):
         if(self._valid):
             res = [[],[]]
@@ -267,7 +257,7 @@ class Join(Main):
     def getSPJRUD(self):
         return "Join({},{})".format(self.exp1.getSPJRUD(),self.exp2.getSPJRUD())
 
-class Rename(Main): #incorrect
+class Rename(Main):
     """docstring for Rename."""
     def __init__(self, col,newName,rel):
         Main.__init__(self)
@@ -277,21 +267,13 @@ class Rename(Main): #incorrect
         self.rel = rel
     def validation(self,dbSchema):
         if(not self.rel.validation(dbSchema)):
-            self._structure = "ERROR rel is not valid"
-            return False
+            return "ERROR SUB REQUEST"
         if(not self.col in self.rel.sorte()[0]):
-            raise SpjrudToSqlException("ERROR col is not in relation")
+            raise SpjrudToSqlException("ERROR in {} \n col {} is not in {}".format(self.getSPJRUD(),self.col,self.rel.sorte()[0]))
             return False
         if(self.newName in self.rel.sorte()[0]):
-            raise SpjrudToSqlException("ERROR new name is already in relation")
+            raise SpjrudToSqlException("ERROR in {} \n new name {} is already in {}".format(self.getSPJRUD(),self.newName,self.rel.sorte()[0]))
             return False
-        # colTmp=""
-        # for col in self.rel.sorte()[0]:
-        #     if(col == self.col):
-        #         colTmp+="{} \"{}\", ".format(col,self.newName)
-        #     else:
-        #         colTmp+=str(col+", ")
-        # colTmp = colTmp[:-2]
         if(self.rel.getType()=="rel"):
             self._structure = "SELECT {} AS {} FROM {}".format(self.col,self.newName,self.rel._name)
         else:
@@ -309,8 +291,6 @@ class Rename(Main): #incorrect
             return res
     def getSPJRUD(self):
         return "Rename({},{},{})".format(self.col,self.newName,self.rel.getSPJRUD())
-    # def __str__(self):
-    #     return "SELECT {} \"{}\" FROM {}".format(self.col,self.newName,self.table)
 
 class Union(Main):
     """docstring for Union."""
@@ -320,28 +300,29 @@ class Union(Main):
         self.exp1 = exp1
         self.exp2 = exp2
     def validation(self,dbSchema):
-        if(self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema)):
-            if(not sorteEquality(self.exp1.sorte(),self.exp2.sorte())):
-                raise SpjrudToSqlException("Error row are not the same")
-                return False
-            unionCol=""
-            for col in self.exp1.sorte()[0]:
-                if(unionCol==""):
-                    unionCol +=col
-                else:
-                    unionCol +=",{}".format(col)
-            if(self.exp2.getType() == "rel"):
-                self._structure = "SELECT * FROM ({}) UNION SELECT {} FROM {}".format(self.exp1.toSql(),unionCol,self.exp2._name)
+        if(not (self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema))):
+            return "ERROR SUB REQUEST"
+        if(not sorteEquality(self.exp1.sorte(),self.exp2.sorte())):
+            raise SpjrudToSqlException("Error in {} \n row are not the same {}!={}".format(self.getSPJRUD(),self.exp1.sorte(),self.exp2.sorte()))
+        unionCol=""
+        for col in self.exp1.sorte()[0]:
+            if(unionCol==""):
+                unionCol +=col
             else:
-                self._structure = "SELECT * FROM ({}) UNION SELECT {} FROM ({})".format(self.exp1.toSql(),unionCol,self.exp2.toSql())
-            self._valid=True
-            return True
-        return False
+                unionCol +=",{}".format(col)
+        if(self.exp2.getType() == "rel"):
+            self._structure = "SELECT * FROM ({}) UNION SELECT {} FROM {}".format(self.exp1.toSql(),unionCol,self.exp2._name)
+        else:
+            self._structure = "SELECT * FROM ({}) UNION SELECT {} FROM ({})".format(self.exp1.toSql(),unionCol,self.exp2.toSql())
+        self._valid=True
+        return True
+
     def sorte(self):
         if(self._valid):
             return self.exp1.sorte()
     def getSPJRUD(self):
         return "Union({},{})".format(self.exp1.getSPJRUD(),self.exp2.getSPJRUD())
+
 class Diff(Main):
     """docstring for Diff"""
     def __init__(self, exp1,exp2):
@@ -351,20 +332,21 @@ class Diff(Main):
         self.exp2 = exp2
     def validation(self,dbSchema):
         if(not (self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema))):
-            print("error")
-        if(sorteEquality(self.exp1.sorte(),self.exp2.sorte())):
-            exceptCol=""
-            for col in self.exp1.sorte()[0]:
-                if(exceptCol==""):
-                    exceptCol +=col
-                else:
-                    exceptCol +=",{}".format(col)
-            if(self.exp2.getType() == "rel"):
-                self._structure = "SELECT * FROM ({}) EXCEPT SELECT {} FROM {}".format(self.exp1.toSql(),exceptCol,self.exp2._name)
+            return "ERROR SUB REQUEST"
+        if(not sorteEquality(self.exp1.sorte(),self.exp2.sorte())):
+            raise SpjrudToSqlException("Error in {} \n row are not the same {}!={}".format(self.getSPJRUD(),self.exp1.sorte(),self.exp2.sorte()))
+        exceptCol=""
+        for col in self.exp1.sorte()[0]:
+            if(exceptCol==""):
+                exceptCol +=col
             else:
-                self._structure = "SELECT * FROM ({}) EXCEPT SELECT {} FROM ({})".format(self.exp1.toSql(),exceptCol,self.exp2.toSql())
-            self._valid=True
-            return True
+                exceptCol +=",{}".format(col)
+        if(self.exp2.getType() == "rel"):
+            self._structure = "SELECT * FROM ({}) EXCEPT SELECT {} FROM {}".format(self.exp1.toSql(),exceptCol,self.exp2._name)
+        else:
+            self._structure = "SELECT * FROM ({}) EXCEPT SELECT {} FROM ({})".format(self.exp1.toSql(),exceptCol,self.exp2.toSql())
+        self._valid=True
+        return True
     def sorte(self):
         if(self._valid):
             return self.exp1.sorte()
