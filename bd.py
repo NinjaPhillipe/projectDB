@@ -14,4 +14,12 @@ print(dbSchema.getDbschema())
 # print(req.sorte())
 # dbSchema.execute( Union(Rel("job"),Rel("job_hiver")) ) # a mettre dans test unitaire
 # dbSchema.execute( Diff(Rel("job"),Rel("job_hiver")) )
-dbSchema.createTable("test",Diff(Rel("job"),Rel("job_hiver")))
+exp=Join( Union(Rel("job"),Rel("job_hiver")), Rel("annuaire"))
+exp.validation(dbSchema)
+print(exp.toSql())
+dbSchema.execute(exp)
+# dbSchema.createTable("test",Diff(Rel("job"),Rel("job_hiver")))
+
+tt=Rename("id","test",Select(Eq("id",Cst(1)),Rel("users")))
+print(tt.getSPJRUD())
+print(exp.getSPJRUD())

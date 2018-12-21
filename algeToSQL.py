@@ -67,7 +67,7 @@ class MyTest(unittest.TestCase):
         join = Join(Rel("users"),Rel("annuaire"))
         self.assertTrue(join.validation(self.dbSchema))
         self.assertTrue(sorteEquality(join.sorte(),[['id', 'firstname', 'age', 'name', 'email', 'tel'], ['INTEGER', 'TEXT', 'INTEGER', 'TEXT', 'TEXT', 'TEXT']]))
-        self.assertEqual(join.toSql(),"SELECT * FROM users NATURAL JOIN (SELECT * FROM annuaire)")
+        self.assertEqual(join.toSql(),"SELECT * FROM (SELECT * FROM users) NATURAL JOIN (SELECT * FROM annuaire)")
 
         ###########TEST_ERROR#################
         join = Join(Cst("OKOK"),Eq(10,12))
@@ -88,14 +88,14 @@ class MyTest(unittest.TestCase):
         union = Union(rel1,rel1)
         self.assertTrue(union.validation(self.dbSchema))
         self.assertTrue(sorteEquality(union.sorte(),rel1.sorte()))
-        self.assertEqual(union.toSql(),"SELECT * FROM users UNION SELECT id,firstname,age FROM users")
+        self.assertEqual(union.toSql(),"SELECT * FROM (SELECT * FROM users) UNION SELECT id,firstname,age FROM users")
 
         union = Union(Select(Eq('id',Cst(0)),Rel('users')),Select(Eq('id',Cst(0)),Rel('users')))
         self.assertTrue(union.validation(self.dbSchema))
 
         union = Union(Rel("job"),Rel("job_hiver"))
         self.assertTrue(union.validation(self.dbSchema))
-        self.assertEqual(union.toSql(),"SELECT * FROM job UNION SELECT id,job_name,sal FROM job_hiver" )
+        self.assertEqual(union.toSql(),"SELECT * FROM (SELECT * FROM job) UNION SELECT id,job_name,sal FROM job_hiver" )
         ###########TEST_ERROR#################
         union = Union(Rel("users"),Rel("annuaire"))
         with self.assertRaises(Exception) as context:
@@ -111,10 +111,10 @@ class MyTest(unittest.TestCase):
         diff = Diff(rel1,rel1)
         self.assertTrue(diff.validation(self.dbSchema))
         self.assertTrue(sorteEquality(diff.sorte(),rel1.sorte()))
-        self.assertEqual(diff.toSql(),"SELECT * FROM users EXCEPT SELECT id,firstname,age FROM users")
+        self.assertEqual(diff.toSql(),"SELECT * FROM (SELECT * FROM users) EXCEPT SELECT id,firstname,age FROM users")
         diff = Diff(Rel("job"),Rel("job_hiver"))
         self.assertTrue(diff.validation(self.dbSchema))
-        self.assertEqual(diff.toSql(),"SELECT * FROM job EXCEPT SELECT id,job_name,sal FROM job_hiver")
+        self.assertEqual(diff.toSql(),"SELECT * FROM (SELECT * FROM job) EXCEPT SELECT id,job_name,sal FROM job_hiver")
 
         ###########TEST_ERROR#################
         diff = Diff(Rel("users"),Rel("annuaire"))

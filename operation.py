@@ -152,6 +152,8 @@ class Rel(Main):
         return False
     def toSql(self):
         return "SELECT * FROM {}".format(self._name)
+    def getSPJRUD(self):
+        return str(self._name)
     # def getRelSchema(self,dbSchema):
     #     for table in dbSchema.getDbschema():
     #         if(table[0]==self.table):
@@ -166,6 +168,8 @@ class Eq:
     def validation(self,dbSchema):
         self._structure =  "{} = {}".format(self.col,self.constante.validation(dbSchema))
         return True
+    def getSPJRUD(self):
+        return "Eq({},{})".format(self.col,self.constante.name)
     def __str__(self):
         if(type(self.constante)==str):
             return self.col +"="+str(self.constante)
@@ -200,6 +204,8 @@ class Select(Main):
             self._structure = "SELECT * FROM ({}) WHERE {}".format(self.rel.toSql(),str(self.eq))
         self._valid = True
         return True
+    def getSPJRUD(self):
+        return "Select({},{})".format(self.eq.getSPJRUD(),self.rel.getSPJRUD())
     def sorte(self):
         if(self._valid):
             return self.rel.sorte()
@@ -238,6 +244,8 @@ class Proj(Main):
                 res[0].append(col)
                 res[1].append(self.rel.sorte()[1][self.rel.sorte()[0].index(col)])
             return res
+    def getSPJRUD(self):
+        return "Proj({},{})".format(self.arrayCol,self.rel.getSPJRUD())
 
 
 class Join(Main):
@@ -250,7 +258,7 @@ class Join(Main):
     def validation(self,dbSchema):
         if(self.exp1.validation(dbSchema) and self.exp2.validation(dbSchema)):
             self._valid = True
-            self._structure = "{} NATURAL JOIN ({})".format(self.exp1.toSql(),self.exp2.toSql())
+            self._structure = "SELECT * FROM ({}) NATURAL JOIN ({})".format(self.exp1.toSql(),self.exp2.toSql())
             return True
         return False
     def sorte(self):
@@ -264,6 +272,8 @@ class Join(Main):
                     res[0].append(col)
                     res[1].append(self.exp2.sorte()[1][self.exp2.sorte()[0].index(col)])
             return res
+    def getSPJRUD(self):
+        return "Join({},{})".format(self.exp1.getSPJRUD(),self.exp2.getSPJRUD())
 
 class Rename(Main): #incorrect
     """docstring for Rename."""
@@ -305,6 +315,8 @@ class Rename(Main): #incorrect
                 res[1].append(self.rel.sorte()[1][i])
             res[0][index] = self.newName
             return res
+    def getSPJRUD(self):
+        return "Rename({},{},{})".format(self.col,self.newName,self.rel.getSPJRUD())
     # def __str__(self):
     #     return "SELECT {} \"{}\" FROM {}".format(self.col,self.newName,self.table)
 
@@ -327,15 +339,17 @@ class Union(Main):
                 else:
                     unionCol +=",{}".format(col)
             if(self.exp2.getType() == "rel"):
-                self._structure = "{} UNION SELECT {} FROM {}".format(self.exp1.toSql(),unionCol,self.exp2._name)
+                self._structure = "SELECT * FROM ({}) UNION SELECT {} FROM {}".format(self.exp1.toSql(),unionCol,self.exp2._name)
             else:
-                self._structure = "{} UNION SELECT {} FROM ({})".format(self.exp1.toSql(),unionCol,self.exp2.toSql())
+                self._structure = "SELECT * FROM ({}) UNION SELECT {} FROM ({})".format(self.exp1.toSql(),unionCol,self.exp2.toSql())
             self._valid=True
             return True
         return False
     def sorte(self):
         if(self._valid):
             return self.exp1.sorte()
+    def getSPJRUD(self):
+        return "Union({},{})".format(self.exp1.getSPJRUD(),self.exp2.getSPJRUD())
 class Diff(Main):
     """docstring for Diff"""
     def __init__(self, exp1,exp2):
@@ -354,11 +368,13 @@ class Diff(Main):
                 else:
                     exceptCol +=",{}".format(col)
             if(self.exp2.getType() == "rel"):
-                self._structure = "{} EXCEPT SELECT {} FROM {}".format(self.exp1.toSql(),exceptCol,self.exp2._name)
+                self._structure = "SELECT * FROM ({}) EXCEPT SELECT {} FROM {}".format(self.exp1.toSql(),exceptCol,self.exp2._name)
             else:
-                self._structure = "{} EXCEPT SELECT {} FROM ({})".format(self.exp1.toSql(),exceptCol,self.exp2.toSql())
+                self._structure = "SELECT * FROM ({}) EXCEPT SELECT {} FROM ({})".format(self.exp1.toSql(),exceptCol,self.exp2.toSql())
             self._valid=True
             return True
     def sorte(self):
         if(self._valid):
             return self.exp1.sorte()
+    def getSPJRUD(self):
+        return "Diff({},{})".format(self.exp1.getSPJRUD(),self.exp2.getSPJRUD())
