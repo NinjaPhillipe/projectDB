@@ -293,17 +293,17 @@ class Rename(Main): #incorrect
         if(self.newName in self.rel.sorte()[0]):
             raise SpjrudToSqlException("ERROR new name is already in relation")
             return False
-        colTmp=""
-        for col in self.rel.sorte()[0]:
-            if(col == self.col):
-                colTmp+="{} \"{}\", ".format(col,self.newName)
-            else:
-                colTmp+=str(col+", ")
-        colTmp = colTmp[:-2]
+        # colTmp=""
+        # for col in self.rel.sorte()[0]:
+        #     if(col == self.col):
+        #         colTmp+="{} \"{}\", ".format(col,self.newName)
+        #     else:
+        #         colTmp+=str(col+", ")
+        # colTmp = colTmp[:-2]
         if(self.rel.getType()=="rel"):
-            self._structure = "SELECT {} FROM {}".format(colTmp,self.rel._name)
+            self._structure = "SELECT {} AS {} FROM {}".format(self.col,self.newName,self.rel._name)
         else:
-            self._structure = "SELECT {} FROM ({})".format(colTmp,self.rel.toSql())
+            self._structure = "SELECT {} AS {} FROM ({})".format(self.col,self.newName,self.rel.toSql())
         self._valid=True
         return True
     def sorte(self):
