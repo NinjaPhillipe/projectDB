@@ -159,6 +159,8 @@ class Eq:
         self._structure =  "{} = {}".format(self.col,self.constante.validation(dbSchema))
         return True
     def getSPJRUD(self):
+        if(type(self.constante)==str):
+            return "Eq({},{})".format(self.col,self.constante)
         return "Eq({},{})".format(self.col,self.constante.name)
     def __str__(self):
         if(type(self.constante)==str):
@@ -179,15 +181,15 @@ class Select(Main):
             self._structure = "ERROR SUB REQUEST"
             return False # On a un return false par sécurité
         if(not self.eq.col in self.rel.sorte()[0]): # si la colonne n'est pas dans le schema
-            raise SpjrudToSqlException("ERROR: col {} does not exist in {}".format(self.eq.col,self.rel.sorte()))
+            raise SpjrudToSqlException("ERROR in {} \n col {} does not exist in {}".format(self.getSPJRUD(),self.eq.col,self.rel.sorte()))
         if(type(self.eq.constante)==Cst): #si c'est une constante
             if(not self.eq.constante.getType()== self.rel.sorte()[1][self.rel.sorte()[0].index(self.eq.col)] ): # si le type de la colonne n'est pas egale au type de la constante
                 raise SpjrudToSqlException("ok")
         else: # sinon c'est une colonne
             if(not self.eq.constante in self.rel.sorte()[0]): #si la colonne n'est pas dans le schema
-                raise SpjrudToSqlException("La colonne n'est pas dans ")
+                raise SpjrudToSqlException("ERROR in {} \n col {} does not exist in {}".format(self.getSPJRUD(),self.eq.constante,self.rel.sorte()))
             if(not self.rel.sorte()[1][self.rel.sorte()[0].index(self.eq.constante)]== self.rel.sorte()[1][self.rel.sorte()[0].index(self.eq.col)] ): # si les types des colonnes ne sont pas egaux
-                raise SpjrudToSqlException("ERROR")
+                raise SpjrudToSqlException("ERROR in {} \n type of column {} and {} are not equals {} != {}".format(self.getSPJRUD(),self.eq.col,self.eq.constante,self.rel.sorte()[1][self.rel.sorte()[0].index(self.eq.col)],self.rel.sorte()[1][self.rel.sorte()[0].index(self.eq.constante)]))
         if(self.rel.getType() == "rel"):
             self._structure = "SELECT * FROM {} WHERE {}".format(self.rel._name,str(self.eq))
         else:

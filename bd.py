@@ -29,3 +29,5 @@ dbSchema.execute(exp)
 exp = Select(Eq('firstname',Cst('Jean')),Rel('users')) + Select(Eq('firstname',Cst('Pierre')),Rel('users'))
 
 dbSchema.execute(exp,True)
+
+dbSchema.execute(Select(Eq("id","firstname"),Rel("users")))
