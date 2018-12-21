@@ -4,12 +4,10 @@
 import sqlite3
 
 def sorteEquality(sorte1,sorte2):
-    #verificaton de l'égalité par double inclusion
-    #plus verifier si les types des colonnes sont egaux
-    for col in sorte1[0]:
+    for col in sorte1[0]:     #verificaton de l'égalité par double inclusion
         if(not col in sorte2[0]):
             return False
-        if(not sorte1[1][sorte1[0].index(col)] == sorte2[1][sorte2[0].index(col)]):
+        if(not sorte1[1][sorte1[0].index(col)] == sorte2[1][sorte2[0].index(col)]):#plus verifier si les types des colonnes sont egaux
             return False # type colonne incorrect
     for col in sorte2[0]:
         if(not col in sorte1[0]):
@@ -18,11 +16,8 @@ def sorteEquality(sorte1,sorte2):
             return False # type colonne incorrect
     return True
 class SpjrudToSqlException(Exception):
-    """docstring for SpjrudToSql."""
-    def __init__(self, arg):
-        # super(SpjrudToSql, self).__init__()
-        # print(arg)
-        pass
+    """SpjrudToSqlException est une exception pour reconnaitre les exceptions générées volontairement par le programme."""
+    pass
 
 class DbSchema:
     """docstring for DbSchema."""
@@ -48,7 +43,6 @@ class DbSchema:
             if(tuple[0] != "sqlite_sequence"):
                 tablesName.append(tuple[0])
         return tablesName
-
     def getColInfo(self,table):
         colName = []
         colType = []
@@ -57,13 +51,15 @@ class DbSchema:
             colName.append(col[1])
             colType.append(col[2])
         self.tab.append([table,colName,colType])
-    def execute(self,query):
+    def execute(self,query,printQuery=False):
         if(not self.trueDB):
             print("NOT TRUE DB")
             return False
         if(not query.validation(self)):
             print("Query is not valid : ")
             return False
+        if(printQuery):
+            print(query.toSql())
         cur = self.db.cursor()
         cur.execute(query.toSql())
         rows = cur.fetchall()
@@ -81,12 +77,8 @@ class DbSchema:
         cur.execute("CREATE TABLE {} AS {}".format(name,query.toSql()))
         rows = cur.fetchall()
 
-    def __str__(self):
-        #format [table, colonoe, type]
-        return str(self.tab)
-
 class Main:
-    """docstring for main."""
+    """Classe qui sert de schema pour les autres"""
     def __init__(self):
         self._structure=None
         self._error=None
@@ -101,11 +93,14 @@ class Main:
         return self._structure
     def getType(self):
         return self._type
+    def __add__(rel1, rel2):
+        return Union(rel1,rel2)
+    def __sub__(rel1, rel2):
+        return Diff(rel1,rel2)
 
 class Cst:
     """Objet representant une constante"""
     def __init__(self, name):
-        # super().__init__()
         self.name = name
         self._type = ""
         if (isinstance(self.name, int)):
@@ -135,11 +130,6 @@ class Rel(Main):
         Main.__init__(self)
         self._type = "rel"
         self._name = name
-    def __add__(rel1, rel2):
-        return Union(rel1,rel2)
-    def __sub__(rel1, rel2):
-        return Diff(rel1,rel2)
-
     def validation(self,dbSchema):
         #vérifie si la table existe
         for table in dbSchema.getDbschema():
@@ -195,7 +185,7 @@ class Select(Main):
                 raise SpjrudToSqlException("ok")
         else: # sinon c'est une colonne
             if(not self.eq.constante in self.rel.sorte()[0]): #si la colonne n'est pas dans le schema
-                raise SpjrudToSqlException("ERROR")
+                raise SpjrudToSqlException("La colonne n'est pas dans ")
             if(not self.rel.sorte()[1][self.rel.sorte()[0].index(self.eq.constante)]== self.rel.sorte()[1][self.rel.sorte()[0].index(self.eq.col)] ): # si les types des colonnes ne sont pas egaux
                 raise SpjrudToSqlException("ERROR")
         if(self.rel.getType() == "rel"):

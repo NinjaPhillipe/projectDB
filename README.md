@@ -1,5 +1,13 @@
-# Projet base de données
+# Interpréteur de requête SPJRUD pour sqlite3
 
-# Usage
+## Manuel d'utilisation
 
-Tout d'abord `DbSchema()`
+* `Cst()`
+* `Rel()`
+* `Eq()`
+* `Select()`
+* `Proj()`
+* `Join()`
+* `Rename()`
+* `Union()`
+* `Diff()`

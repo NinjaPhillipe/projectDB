@@ -1,5 +1,5 @@
 import unittest
-from operation import *
+from SqlFromSPJRUD import *
 
 class MyTest(unittest.TestCase):
     dbSchema = DbSchema()
@@ -34,6 +34,10 @@ class MyTest(unittest.TestCase):
         self.assertTrue(select.validation(self.dbSchema))
         self.assertTrue(sorteEquality(select.sorte(),[['id', 'firstname', 'age'], ['INTEGER', 'TEXT', 'INTEGER']]))
         self.assertEqual(select.toSql(),"SELECT * FROM users WHERE id=0")
+
+        select = Select(Eq('firstname',Cst('jean')),Rel('users'))
+        self.assertTrue(select.validation(self.dbSchema))
+        self.assertEqual(select.toSql(),"SELECT * FROM users WHERE firstname=\"jean\"")
         #projection sur plusieurs colonne
         select = Select(Eq('firstname',Cst("Pierre")),Rel('users'))
         self.assertTrue(select.validation(self.dbSchema))
